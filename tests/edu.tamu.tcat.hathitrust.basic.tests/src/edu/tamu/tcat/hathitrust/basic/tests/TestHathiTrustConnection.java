@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import edu.tamu.tcat.hathitrust.basic.oauth.OAuthCredentials;
 import edu.tamu.tcat.hathitrust.basic.oauth.OAuthException;
+import edu.tamu.tcat.hathitrust.basic.oauth.OAuthQueryRequest;
 import edu.tamu.tcat.hathitrust.basic.oauth.OAuthRequest;
 import edu.tamu.tcat.hathitrust.basic.oauth.SimpleParameter;
 
@@ -26,7 +27,8 @@ public class TestHathiTrustConnection
    public void executeHelloWorldTest() throws OAuthException
    {
       URI base = URI.create("http://babel.hathitrust.org/cgi/htdc/dapiserver");
-      OAuthRequest req = new OAuthRequest(new OAuthCredentials()
+      OAuthRequest req = new OAuthQueryRequest();
+      req.setCredentials(new OAuthCredentials()
       {
          @Override
          public String getToken() { return ""; }
