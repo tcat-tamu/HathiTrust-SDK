@@ -6,6 +6,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.security.SignatureException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
@@ -21,9 +24,18 @@ import com.google.common.collect.TreeMultiset;
 import com.google.common.escape.Escaper;
 import com.google.common.net.UrlEscapers;
 
+/**
+ * Sends a signed OAuth 1.0 HTTP request using query string parameters.
+ *
+ * Header and Body parameters are not allowed.
+ *
+ * @author matt.barry
+ */
 public class OAuthQueryRequest implements OAuthRequest
 {
    private static final int NONCE_BYTES = 10;
+
+   private static final String OAUTH_VERSION = "1.0";
 
    private static final String PARAM_OAUTH_CONSUMER_KEY = "oauth_consumer_key";
    private static final String PARAM_OAUTH_NONCE = "oauth_nonce";
@@ -31,6 +43,16 @@ public class OAuthQueryRequest implements OAuthRequest
    private static final String PARAM_OAUTH_SIGNATURE_METHOD = "oauth_signature_method";
    private static final String PARAM_OAUTH_TIMESTAMP = "oauth_timestamp";
    private static final String PARAM_OAUTH_VERSION = "oauth_version";
+   private static final String PARAM_REALM = "realm";
+
+   private static final Set<String> OAUTH_PARAMETERS = new HashSet<>(Arrays.asList(
+      PARAM_OAUTH_CONSUMER_KEY,
+      PARAM_OAUTH_NONCE,
+      PARAM_OAUTH_SIGNATURE,
+      PARAM_OAUTH_SIGNATURE_METHOD,
+      PARAM_OAUTH_TIMESTAMP,
+      PARAM_OAUTH_VERSION
+   ));
 
 
    Joiner queryParamJoiner = Joiner.on("&").skipNulls();
@@ -91,6 +113,10 @@ public class OAuthQueryRequest implements OAuthRequest
    @Override
    public OAuthRequest addParameter(Parameter param)
    {
+      if (!isValidParameter(param)) {
+         throw new IllegalArgumentException("Tried to set reserved request parameter [" + param + "]");
+      }
+
       this.params.add(param);
 
       return this;
@@ -120,16 +146,14 @@ public class OAuthQueryRequest implements OAuthRequest
       Multiset<Parameter> oauthParams = TreeMultiset.create();
 
       oauthParams.add(SimpleParameter.create(PARAM_OAUTH_CONSUMER_KEY, cred.getKey()));
+      oauthParams.add(SimpleParameter.create(PARAM_OAUTH_NONCE, generateNonce(NONCE_BYTES)));
+      oauthParams.add(SimpleParameter.create(PARAM_OAUTH_SIGNATURE_METHOD, signatureProvider.getName()));
 
       long timestamp = System.currentTimeMillis() / 1000;
       oauthParams.add(SimpleParameter.create(PARAM_OAUTH_TIMESTAMP, Long.toString(timestamp)));
 
-      oauthParams.add(SimpleParameter.create(PARAM_OAUTH_NONCE, generateNonce(NONCE_BYTES)));
-      oauthParams.add(SimpleParameter.create(PARAM_OAUTH_VERSION, "1.0"));
-      oauthParams.add(SimpleParameter.create(PARAM_OAUTH_SIGNATURE_METHOD, signatureProvider.getName()));
+      oauthParams.add(SimpleParameter.create(PARAM_OAUTH_VERSION, OAUTH_VERSION));
 
-      // TODO add in all other parameters including header and body (form-encoded) parameters.
-      // HACK for now just add query params
       // FIXME open to attack if someone supplies signature or other oauth params manually. Need to prevent this.
 
       Multiset<Parameter> allParams = TreeMultiset.create(oauthParams);
@@ -161,11 +185,17 @@ public class OAuthQueryRequest implements OAuthRequest
       }
    }
 
-   private String createSignatureBaseString(Multiset<Parameter> oauthParams)
+   private String createSignatureBaseString(Multiset<Parameter> oAuthParams)
    {
-      // TODO possibly remove 'oauth_signature' and 'realm'
+      Multiset<Parameter> filteredOAuthParams = TreeMultiset.create();
+      oAuthParams.forEach(p -> {
+         if (!p.getKey().equals(PARAM_REALM)) {
+            filteredOAuthParams.add(p);
+         }
+      });
+
       String url = queryParamEscaper.escape(normalizeUrl());
-      String normParams = queryParamEscaper.escape(normalizeParams(oauthParams));
+      String normParams = queryParamEscaper.escape(normalizeParams(filteredOAuthParams));
 
       return queryParamJoiner.join(method, url, normParams);
    }
@@ -190,11 +220,11 @@ public class OAuthQueryRequest implements OAuthRequest
 
       int port = baseUri.getPort();
       return (port <= 0 || (port == 80 || port == 443))
-            ? String.format("%s://%s%s", lc(baseUri.getScheme()), lc(baseUri.getHost()), baseUri.getPath())
-            : String.format("%s://%s:%d%s", lc(baseUri.getScheme()), lc(baseUri.getHost()), Integer.valueOf(port), baseUri.getPath());
+            ? String.format("%s://%s%s", lowercase(baseUri.getScheme()), lowercase(baseUri.getHost()), baseUri.getPath())
+            : String.format("%s://%s:%d%s", lowercase(baseUri.getScheme()), lowercase(baseUri.getHost()), Integer.valueOf(port), baseUri.getPath());
    }
 
-   private String lc(String value)
+   private String lowercase(String value)
    {
       if (value == null)
       {
@@ -246,5 +276,10 @@ public class OAuthQueryRequest implements OAuthRequest
       {
          throw new OAuthException("Failed to execute request [" + uri + "]", ex);
       }
+   }
+
+   private boolean isValidParameter(Parameter param)
+   {
+      return ! OAUTH_PARAMETERS.contains(param.getKey());
    }
 }

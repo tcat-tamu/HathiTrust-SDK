@@ -7,7 +7,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class HmacSha1SignatureProvider implements OAuthSignatureProvider
 {
-   private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+   private static final String HMAC_SHA1_SPEC = "HmacSHA1";
 
    private byte[] key;
 
@@ -29,10 +29,10 @@ public class HmacSha1SignatureProvider implements OAuthSignatureProvider
       try {
 
          // get an hmac_sha1 key from the raw key bytes
-         SecretKeySpec signingKey = new SecretKeySpec(key, HMAC_SHA1_ALGORITHM);
+         SecretKeySpec signingKey = new SecretKeySpec(key, HMAC_SHA1_SPEC);
 
          // get an hmac_sha1 Mac instance and initialize with the signing key
-         Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+         Mac mac = Mac.getInstance(HMAC_SHA1_SPEC);
          mac.init(signingKey);
          return mac.doFinal(data);
 

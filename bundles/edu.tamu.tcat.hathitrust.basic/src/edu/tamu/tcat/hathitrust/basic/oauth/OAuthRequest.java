@@ -11,6 +11,8 @@ public interface OAuthRequest
    OAuthRequest setUri(URI uri);
    OAuthRequest setHeader(String header, String value);
    OAuthRequest addParameter(Parameter param);
+
+   // TODO: need to accept something here
    OAuthRequest setBody();
 
    HttpResponse execute() throws OAuthException;
