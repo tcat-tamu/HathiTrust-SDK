@@ -1,5 +1,7 @@
 package edu.tamu.tcat.hathitrust;
 
+import java.net.URI;
+
 /**
  * A physical volume that was scanned for inclusion in HathiTrust. Each item belongs to 
  * a single record, but a single record (e.g., the record for the journal <i>Nature</i>) may 
@@ -9,6 +11,15 @@ public interface Item
 {
    // IMPLEMENTATION NOTE: This will typically not have access to all data. It will need to 
    // execute possibly time intensive queries to the underlying REST API layer.
+   
+   URI getItemURL();
+   
+   String getOriginatingInstitution();
+   
+   String getRecordId();
+   
+   Record getRecord();
+   
    
    
    /**
