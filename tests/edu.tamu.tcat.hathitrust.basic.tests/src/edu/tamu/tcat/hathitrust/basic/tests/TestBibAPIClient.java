@@ -9,9 +9,14 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import edu.tamu.tcat.hathitrust.Record;
+import edu.tamu.tcat.hathitrust.Record.IdType;
+import edu.tamu.tcat.hathitrust.client.HathiTrustClientException;
+import edu.tamu.tcat.hathitrust.client.basic.BasicRecord;
 import edu.tamu.tcat.hathitrust.client.basic.BibAPIClientImpl;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
+import edu.tamu.tcat.oss.json.jackson.JacksonJsonMapper;
 
 public class TestBibAPIClient
 {
@@ -35,10 +40,26 @@ public class TestBibAPIClient
    @Test
    public void testClientConnection()
    {
-      BibAPIClientImpl client = new BibAPIClientImpl();
-      SimpleFileConfigurationProperties config = getConfigProperties();
+      String oclcNum = "379388464";
+      IdType oclc = IdType.OCLC;
+      BasicRecord record = new BasicRecord();
+      BasicRecord.BasicRecordIdentifier recordIdent = record.new BasicRecordIdentifier(oclc, oclcNum);
+//      SimpleFileConfigurationProperties config = getConfigProperties();
 
+      BibAPIClientImpl client = new BibAPIClientImpl();
       client.setConfig(new ConfigurationPropertiesImpl());
+      JacksonJsonMapper mapper = new JacksonJsonMapper();
+      mapper.activate();
+      client.setJsonMapper(mapper);
+      try
+      {
+         Record lookup = client.lookup(recordIdent);
+      }
+      catch (HathiTrustClientException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
       // client.setJsonMapper(mapper);
       assertTrue("", client.canConnect());
    }
@@ -49,7 +70,7 @@ public class TestBibAPIClient
       @Override
       public <T> T getPropertyValue(String name, Class<T> type) throws IllegalStateException
       {
-         if (!name.equalsIgnoreCase("edu.tamu.tcat.hathitrust.api_endpoint"))
+         if (!name.equalsIgnoreCase(BibAPIClientImpl.HATHI_TRUST))
             throw new IllegalStateException("No value configured for property '" + name + "'");
 
          if (type != String.class)
@@ -61,7 +82,7 @@ public class TestBibAPIClient
       @Override
       public <T> T getPropertyValue(String name, Class<T> type, T defaultValue) throws IllegalStateException
       {
-         if (!name.equalsIgnoreCase("edu.tamu.tcat.hathitrust.api_endpoint"))
+         if (!name.equalsIgnoreCase(BibAPIClientImpl.HATHI_TRUST))
             throw new IllegalStateException("No value configured for property '" + name + "'");
 
          if (type != String.class)

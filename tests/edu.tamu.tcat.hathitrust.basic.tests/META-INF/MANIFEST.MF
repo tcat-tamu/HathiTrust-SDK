@@ -11,5 +11,7 @@ Import-Package: edu.tamu.tcat.hathitrust,
  edu.tamu.tcat.hathitrust.client.basic,
  edu.tamu.tcat.osgi.config;version="1.0.3",
  edu.tamu.tcat.osgi.config.file;version="1.0.3",
+ edu.tamu.tcat.oss.json,
+ edu.tamu.tcat.oss.json.jackson,
  org.apache.http;version="4.2.5",
  org.junit
