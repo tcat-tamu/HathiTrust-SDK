@@ -1,16 +1,20 @@
 package edu.tamu.tcat.hathitrust.basic.tests;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 
 import edu.tamu.tcat.hathitrust.Record;
 import edu.tamu.tcat.hathitrust.Record.IdType;
+import edu.tamu.tcat.hathitrust.Record.RecordIdentifier;
 import edu.tamu.tcat.hathitrust.client.HathiTrustClientException;
 import edu.tamu.tcat.hathitrust.client.v1.basic.BasicRecord;
 import edu.tamu.tcat.hathitrust.client.v1.basic.BibAPIClientImpl;
@@ -53,7 +57,21 @@ public class TestBibAPIClient
       client.setJsonMapper(mapper);
       try
       {
-         Record lookup = client.lookup(recordIdent);
+         Collection<Record> lookup = client.lookup(recordIdent);
+         for (Record recordResult : lookup)
+         {
+            boolean identNumberListed = false;
+            List<RecordIdentifier> identifiers = recordResult.getIdentifiers(oclc);
+            for(RecordIdentifier resultRecordIdent : identifiers)
+            {
+               if(oclcNum.equals(resultRecordIdent.getId()))
+               {
+                  identNumberListed = true;
+                  break;
+               }
+            }
+            assertTrue("OCLC number do not match.", identNumberListed);
+         }
       }
       catch (HathiTrustClientException e)
       {
@@ -61,7 +79,7 @@ public class TestBibAPIClient
          e.printStackTrace();
       }
       // client.setJsonMapper(mapper);
-      assertTrue("", client.canConnect());
+      assertTrue("Unable to connect to HathiTrust", client.canConnect());
    }
 
    private class ConfigurationPropertiesImpl implements ConfigurationProperties
