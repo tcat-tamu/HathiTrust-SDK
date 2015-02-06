@@ -8,8 +8,13 @@ import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -25,15 +30,19 @@ import com.google.common.escape.Escaper;
 import com.google.common.net.UrlEscapers;
 
 /**
+ * Implements the tasks associated with building and signing requests to the HathiTrust
+ * API.
+ *
+ *  <p>
  * Sends a signed OAuth 1.0 HTTP request using query string parameters.
  *
- * Header and Body parameters are not allowed.
- *
- * @author matt.barry
+ * Header and Body parameters are not currently supported.
  */
-public class OAuthQueryRequest implements OAuthRequest
+public class HathiTrustAPICommandBuilder
 {
+   private static final String SIGNATURE_METHOD = "HMAC-SHA1";
    private static final int NONCE_BYTES = 10;
+   private static final String HMAC_SHA1_SPEC = "HmacSHA1";
 
    private static final String OAUTH_VERSION = "1.0";
 
@@ -54,7 +63,6 @@ public class OAuthQueryRequest implements OAuthRequest
       PARAM_OAUTH_VERSION
    ));
 
-
    Joiner queryParamJoiner = Joiner.on("&").skipNulls();
    Escaper queryParamEscaper = UrlEscapers.urlFormParameterEscaper();
 
@@ -62,56 +70,41 @@ public class OAuthQueryRequest implements OAuthRequest
    static SecureRandom prng = new SecureRandom();
 
    // key and secret, token (for 1.0a and more recent)
-   private OAuthCredentials cred = null;
    private Multiset<Parameter> params = TreeMultiset.create();
    private URI baseUri;
    private String method;
+   private String accessKey;
 
-   private OAuthSignatureProvider signatureProvider = new HmacSha1SignatureProvider();
+   private byte[] signatureKey;
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.hathitrust.basic.oauth.OAuthRequest#setCredentials(edu.tamu.tcat.hathitrust.basic.oauth.OAuthCredentials)
-    */
-   @Override
-   public OAuthRequest setCredentials(OAuthCredentials cred)
+
+   public HathiTrustAPICommandBuilder setCredentials(String accessKey, String sharedSecret)
    {
-      this.cred = cred;
-
-      String secret = queryParamEscaper.escape(cred.getSecret());
-      String token = queryParamEscaper.escape(cred.getToken());
+      String secret = queryParamEscaper.escape(sharedSecret);
+      String token = queryParamEscaper.escape("");
       String key = queryParamJoiner.join(secret, token);
-      this.signatureProvider.setKey(key.getBytes());
+
+      this.accessKey = accessKey;
+      this.signatureKey = key.getBytes();
 
       return this;
    }
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.hathitrust.basic.oauth.OAuthRequest#setMethod(java.lang.String)
-    */
-   @Override
-   public OAuthRequest setMethod(String m)
+   public HathiTrustAPICommandBuilder setUri(URI uri)
    {
-      this.method = m.toUpperCase();
-      return this;
-   }
-
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.hathitrust.basic.oauth.OAuthRequest#setUri(java.net.URI)
-    */
-   @Override
-   public OAuthRequest setUri(URI uri)
-   {
-      // TODO strip off any supplied query string and add to parameter set.
       this.baseUri = uri;
 
       return this;
    }
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.hathitrust.basic.oauth.OAuthRequest#addParameter(edu.tamu.tcat.hathitrust.basic.oauth.Parameter)
-    */
-   @Override
-   public OAuthRequest addParameter(Parameter param)
+   public HathiTrustAPICommandBuilder setMethod(String m)
+   {
+      this.method = m.toUpperCase();
+      return this;
+   }
+
+
+   public HathiTrustAPICommandBuilder addParameter(Parameter param)
    {
       if (!isValidParameter(param)) {
          throw new IllegalArgumentException("Tried to set reserved request parameter [" + param + "]");
@@ -122,39 +115,32 @@ public class OAuthQueryRequest implements OAuthRequest
       return this;
    }
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.hathitrust.basic.oauth.OAuthRequest#setBody()
+   /**
+    * Sets the body of the HTTP request. Currently unsupported.
+    *
+    * @return A reference to this object to support query chaining.
     */
-   @Override
-   public OAuthRequest setBody()
+   public HathiTrustAPICommandBuilder setBody()
    {
       throw new UnsupportedOperationException();
    }
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.hathitrust.basic.oauth.OAuthRequest#setHeader(java.lang.String, java.lang.String)
-    */
-   @Override
-   public OAuthRequest setHeader(String header, String value)
+   public HathiTrustAPICommandBuilder setHeader(String header, String value)
    {
       throw new UnsupportedOperationException();
    }
 
-
-   private Multiset<Parameter> getOAuthParams() throws OAuthException
+   private Multiset<Parameter> constructOAuthParams() throws OAuthException
    {
       Multiset<Parameter> oauthParams = TreeMultiset.create();
 
-      oauthParams.add(SimpleParameter.create(PARAM_OAUTH_CONSUMER_KEY, cred.getKey()));
+      oauthParams.add(SimpleParameter.create(PARAM_OAUTH_CONSUMER_KEY, accessKey));
       oauthParams.add(SimpleParameter.create(PARAM_OAUTH_NONCE, generateNonce(NONCE_BYTES)));
-      oauthParams.add(SimpleParameter.create(PARAM_OAUTH_SIGNATURE_METHOD, signatureProvider.getName()));
+      oauthParams.add(SimpleParameter.create(PARAM_OAUTH_SIGNATURE_METHOD, SIGNATURE_METHOD));
 
       long timestamp = System.currentTimeMillis() / 1000;
       oauthParams.add(SimpleParameter.create(PARAM_OAUTH_TIMESTAMP, Long.toString(timestamp)));
-
       oauthParams.add(SimpleParameter.create(PARAM_OAUTH_VERSION, OAUTH_VERSION));
-
-      // FIXME open to attack if someone supplies signature or other oauth params manually. Need to prevent this.
 
       Multiset<Parameter> allParams = TreeMultiset.create(oauthParams);
       allParams.addAll(params);
@@ -162,7 +148,7 @@ public class OAuthQueryRequest implements OAuthRequest
 
       try
       {
-         String signature = computeSignature(signatureBase);
+         String signature = computeSignature(signatureBase, signatureKey);
          oauthParams.add(SimpleParameter.create(PARAM_OAUTH_SIGNATURE, signature));
       }
       catch (SignatureException e)
@@ -173,15 +159,35 @@ public class OAuthQueryRequest implements OAuthRequest
       return oauthParams;
    }
 
-   private String computeSignature(String signatureBase) throws SignatureException
+
+   private static String computeSignature(String signatureBase, byte[] key) throws SignatureException
    {
-      byte[] rawHmac;
-      try {
-         rawHmac = signatureProvider.getSignature(signatureBase.getBytes("UTF-8"));
-         return Base64.encodeBase64String(rawHmac);
+      byte[] data;
+      try
+      {
+         data = signatureBase.getBytes("UTF-8");
       }
-      catch (UnsupportedEncodingException e) {
-         throw new SignatureException("Unable to generate HMAC", e);
+      catch (UnsupportedEncodingException e)
+      {
+         throw new IllegalStateException("Unable to generate HMAC", e);
+      }
+
+      try
+      {
+         // get an hmac_sha1 key from the raw key bytes
+         SecretKeySpec signingKey = new SecretKeySpec(key, HMAC_SHA1_SPEC);
+
+         // get an hmac_sha1 Mac instance and initialize with the signing key
+         Mac mac = Mac.getInstance(HMAC_SHA1_SPEC);
+         mac.init(signingKey);
+         byte[] rawHmac = mac.doFinal(data);
+         return Base64.encodeBase64String(rawHmac);
+
+
+      }
+      catch (Exception e)
+      {
+         throw new SignatureException("Failed to generate HMAC", e);
       }
    }
 
@@ -212,11 +218,11 @@ public class OAuthQueryRequest implements OAuthRequest
 
    private String normalizeUrl()
    {
+      Objects.requireNonNull(baseUri, "No base URI supplied.");
+
       String scheme = baseUri.getScheme();
       if (scheme == null || !(scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https")))
-      {
-         throw new IllegalStateException("Request URI scheme [" + baseUri + "]");
-      }
+         throw new IllegalStateException("Invalid request URI scheme [" + baseUri + "]");
 
       int port = baseUri.getPort();
       return (port <= 0 || (port == 80 || port == 443))
@@ -227,9 +233,7 @@ public class OAuthQueryRequest implements OAuthRequest
    private String lowercase(String value)
    {
       if (value == null)
-      {
          return "";
-      }
 
       return value.toLowerCase();
    }
@@ -243,16 +247,28 @@ public class OAuthQueryRequest implements OAuthRequest
       return Hex.encodeHexString(bytes);
    }
 
+   public Callable<HttpResponse> build() throws OAuthException
+   {
+      final URI uri = constructUri();
+      return () -> {
+         HttpGet get = new HttpGet(uri);
+         HttpClient client = new DefaultHttpClient();    // TODO this is legacy HttpClient
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.hathitrust.basic.oauth.OAuthRequest#execute()
-    */
-   @Override
-   public HttpResponse execute() throws OAuthException
+         try
+         {
+            return client.execute(get);
+         }
+         catch (IOException ex)
+         {
+            throw new OAuthException("Failed to execute request [" + uri + "]", ex);
+         }
+      };
+   }
+
+   private URI constructUri() throws OAuthException
    {
       Multiset<Parameter> allParams = TreeMultiset.create(params);
-      allParams.addAll(getOAuthParams());
-
+      allParams.addAll(constructOAuthParams());
       String query = normalizeParams(allParams);
 
       URI uri;
@@ -264,22 +280,14 @@ public class OAuthQueryRequest implements OAuthRequest
       {
          throw new IllegalStateException("Failed to create URI.", ex);
       }
-
-      HttpGet get = new HttpGet(uri);
-
-      HttpClient client = new DefaultHttpClient();
-      try
-      {
-         return client.execute(get);
-      }
-      catch (IOException ex)
-      {
-         throw new OAuthException("Failed to execute request [" + uri + "]", ex);
-      }
+      return uri;
    }
 
    private boolean isValidParameter(Parameter param)
    {
+      // This is open to attack if someone supplies signature or other
+      // oauth params manually. This prevents such an attack
       return ! OAUTH_PARAMETERS.contains(param.getKey());
    }
+
 }
