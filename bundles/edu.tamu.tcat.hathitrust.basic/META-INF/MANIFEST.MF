@@ -23,4 +23,4 @@ Import-Package: com.google.common.base;version="15.0.0",
  org.apache.http.message;version="4.2.5",
  org.apache.http.params;version="4.2.5"
 Export-Package: edu.tamu.tcat.hathitrust.basic.oauth,
- edu.tamu.tcat.hathitrust.client.basic
+ edu.tamu.tcat.hathitrust.client.v1.basic
