@@ -57,8 +57,9 @@ public class ItemDTO
    public static Item instantiate(ItemDTO item)
    {
       URI url = URI.create(item.itemURL);
+      ItemImpl itemImpl = new ItemImpl(item);
 
-      throw new UnsupportedOperationException();
+      return itemImpl;
    }
 
    private static final class ItemImpl implements Item
