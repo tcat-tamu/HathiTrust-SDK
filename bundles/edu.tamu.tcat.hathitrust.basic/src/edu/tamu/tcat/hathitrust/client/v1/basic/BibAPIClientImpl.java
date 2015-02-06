@@ -3,6 +3,11 @@ package edu.tamu.tcat.hathitrust.client.v1.basic;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.HttpResponse;
@@ -13,6 +18,8 @@ import edu.tamu.tcat.hathitrust.Record;
 import edu.tamu.tcat.hathitrust.Record.RecordIdentifier;
 import edu.tamu.tcat.hathitrust.client.BibliographicAPIClient;
 import edu.tamu.tcat.hathitrust.client.HathiTrustClientException;
+import edu.tamu.tcat.hathitrust.client.v1.basic.dto.BibligraphicRecordResult;
+import edu.tamu.tcat.hathitrust.client.v1.basic.dto.RecordDTO;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.oss.json.JsonException;
 import edu.tamu.tcat.oss.json.JsonMapper;
@@ -51,14 +58,13 @@ public class BibAPIClientImpl implements BibliographicAPIClient
    }
 
    @Override
-   public Record lookup(RecordIdentifier id) throws HathiTrustClientException
+   public Collection<Record> lookup(RecordIdentifier id) throws HathiTrustClientException
    {
-      hathiConnect(id);
-      return null;
+      return Collections.unmodifiableList(retrieveHathiRecords(id));
    }
 
    @Override
-   public Record lookup(Set<RecordIdentifier> id) throws HathiTrustClientException
+   public Collection<Record> lookup(Set<RecordIdentifier> id) throws HathiTrustClientException
    {
       // TODO Auto-generated method stub
       return null;
@@ -67,16 +73,33 @@ public class BibAPIClientImpl implements BibliographicAPIClient
    @Override
    public boolean canConnect()
    {
-      throw new UnsupportedOperationException();
+      String hathiUri = config.getPropertyValue(HATHI_TRUST, String.class);
+      URI checkUri = URI.create(hathiUri + "volumes/brief/oclc/424023.json");
+      client = new DefaultHttpClient();
+      get = new HttpGet(checkUri);
+      try
+      {
+         HttpResponse resp = client.execute(get);
+         if (resp.getStatusLine().getStatusCode() < 300)
+            return true;
+         else
+            return false;
+      }
+      catch (IOException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+      return false;
    }
 
-   Record hathiConnect(RecordIdentifier id)
+   List<Record> retrieveHathiRecords(RecordIdentifier id)
    {
+      BibligraphicRecordResult recordResult = null;
+      List<Record> records = new ArrayList<>();
       String hathiUri = config.getPropertyValue(HATHI_TRUST, String.class);
       URI baseHathi = URI.create(hathiUri);
-
       // HACK: Need better approach for generating URI's
-//      URI recordUri = baseHathi.resolve("volumes").resolve("full").resolve(id.getScheme().toString()).resolve(id.getId() + ".json");
       URI recordUri = baseHathi.resolve("volumes/full/" + id.getScheme().toString() + "/" + id.getId() + ".json");
       client = new DefaultHttpClient();
       get = new HttpGet(recordUri);
@@ -86,7 +109,7 @@ public class BibAPIClientImpl implements BibliographicAPIClient
          HttpResponse resp = client.execute(get);
          try(InputStream is = resp.getEntity().getContent())
          {
-            return mapper.parse(is, BasicRecord.class);
+            recordResult = mapper.parse(is, BibligraphicRecordResult.class);
          }
          catch (JsonException e)
          {
@@ -97,8 +120,12 @@ public class BibAPIClientImpl implements BibliographicAPIClient
       {
          e.printStackTrace();
       }
-      return null;
+
+      for (Map.Entry<String, RecordDTO> record : recordResult.records.entrySet())
+      {
+         records.add(RecordDTO.instantiate(record, recordResult.items));
+      }
+      return records;
 
    }
-
 }
