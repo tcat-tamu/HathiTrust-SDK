@@ -1,12 +1,13 @@
 package edu.tamu.tcat.hathitrust.client.v1.basic.dto;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BibligraphicRecordResult
 {
 
-   Map<String, RecordDTO> records = new HashMap<>();
-   Map<String, ItemDTO> items = new HashMap<>();
+   public Map<String, RecordDTO> records = new HashMap<>();
+   public List<ItemDTO> items;
 
 }
