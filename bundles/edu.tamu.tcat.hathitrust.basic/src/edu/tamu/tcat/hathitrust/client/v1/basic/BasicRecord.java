@@ -44,6 +44,20 @@ public class BasicRecord implements Record
       this.items = items;
    }
 
+   public BasicRecord(String id, URI recordUri,
+                      List<String> titles,
+                      List<RecordIdentifier> recordIdents,
+                      List<TemporalAccessor> publishedDates,
+                      List<Item> items)
+   {
+      this.id = id;
+      this.recordUri = recordUri;
+      this.titles = titles;
+      this.recordIdents = recordIdents;
+      this.publishedDates = publishedDates;
+      this.marc = null;
+      this.items = items;
+   }
    @Override
    public String getId()
    {
