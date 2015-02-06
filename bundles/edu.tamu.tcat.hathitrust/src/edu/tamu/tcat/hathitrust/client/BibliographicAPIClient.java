@@ -1,5 +1,6 @@
 package edu.tamu.tcat.hathitrust.client;
 
+import java.util.Collection;
 import java.util.Set;
 
 import edu.tamu.tcat.hathitrust.Record;
@@ -22,9 +23,9 @@ import edu.tamu.tcat.hathitrust.Record.RecordIdentifier;
  */
 public interface BibliographicAPIClient
 {
-   Record lookup(RecordIdentifier id) throws HathiTrustClientException;
+   Collection<Record> lookup(RecordIdentifier id) throws HathiTrustClientException;
 
-   Record lookup(Set<RecordIdentifier> id) throws HathiTrustClientException;
+   Collection<Record> lookup(Set<RecordIdentifier> id) throws HathiTrustClientException;
 
    /**
     * @return Indicates whether the service has been properly configured and can connect to
