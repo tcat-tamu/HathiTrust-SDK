@@ -105,7 +105,13 @@ public class RecordDTO
       @Override
       public List<RecordIdentifier> getIdentifiers(IdType type)
       {
-         return recordIdents;
+         List<RecordIdentifier> idents = new ArrayList<>();
+         for(RecordIdentifier recordIdent : recordIdents)
+         {
+            if(recordIdent.getScheme().equals(type))
+               idents.add(recordIdent);
+         }
+         return idents;
       }
 
       @Override
@@ -123,8 +129,7 @@ public class RecordDTO
       @Override
       public List<Item> getItems()
       {
-         // TODO Auto-generated method stub
-         return null;
+         return this.items;
       }
    }
 }
