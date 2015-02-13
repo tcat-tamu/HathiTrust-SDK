@@ -24,4 +24,5 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",
  org.apache.http.message;version="4.2.5",
  org.apache.http.params;version="4.2.5"
 Export-Package: edu.tamu.tcat.hathitrust.basic.oauth,
- edu.tamu.tcat.hathitrust.client.v1.basic
+ edu.tamu.tcat.hathitrust.client.v1.basic,
+ edu.tamu.tcat.hathitrust.client.v1.basic.dto
