@@ -14,6 +14,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.tamu.tcat.hathitrust.Record;
 import edu.tamu.tcat.hathitrust.Record.RecordIdentifier;
 import edu.tamu.tcat.hathitrust.client.BibliographicAPIClient;
@@ -21,15 +25,13 @@ import edu.tamu.tcat.hathitrust.client.HathiTrustClientException;
 import edu.tamu.tcat.hathitrust.client.v1.basic.dto.BibligraphicRecordResult;
 import edu.tamu.tcat.hathitrust.client.v1.basic.dto.RecordDTO;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.oss.json.JsonException;
-import edu.tamu.tcat.oss.json.JsonMapper;
 
 public class BibAPIClientImpl implements BibliographicAPIClient
 {
    public static final String HATHI_TRUST = "edu.tamu.tcat.hathitrust.api_endpoint";
    private static DefaultHttpClient client;
    private static HttpGet  get;
-   private JsonMapper mapper;
+   private ObjectMapper mapper;
    private ConfigurationProperties config;
 
    public BibAPIClientImpl()
@@ -40,11 +42,12 @@ public class BibAPIClientImpl implements BibliographicAPIClient
    public void setConfig(ConfigurationProperties config)
    {
       this.config = config;
+      this.mapper = new ObjectMapper();
+      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
    }
 
-   public void setJsonMapper(JsonMapper mapper)
+   public void setJsonMapper()
    {
-      this.mapper = mapper;
    }
 
    public void activate()
@@ -109,9 +112,9 @@ public class BibAPIClientImpl implements BibliographicAPIClient
          HttpResponse resp = client.execute(get);
          try(InputStream is = resp.getEntity().getContent())
          {
-            recordResult = mapper.parse(is, BibligraphicRecordResult.class);
+            recordResult = mapper.readValue(is, BibligraphicRecordResult.class);
          }
-         catch (JsonException e)
+         catch (JsonParseException e)
          {
             e.printStackTrace();
          }

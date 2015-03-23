@@ -51,7 +51,6 @@ public class TestBibAPIClient
       client.setConfig(new ConfigurationPropertiesImpl());
       JacksonJsonMapper mapper = new JacksonJsonMapper();
       mapper.activate();
-      client.setJsonMapper(mapper);
 
       BibligraphicRecordResultData result = new BibligraphicRecordResultData();
       Record bibRecord = result.getBibRecord();
