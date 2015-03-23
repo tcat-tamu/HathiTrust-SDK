@@ -18,16 +18,6 @@ public class BasicRecord implements Record
    private final MarcRecord marc;
    private final List<Item> items;
 
-   public BasicRecord()
-   {
-      this.id = "";
-      this.recordUri = null;
-      this.titles = null;
-      this.recordIdents = null;
-      this.publishedDates = null;
-      this.marc = null;
-      this.items = null;
-   }
    public BasicRecord(String id, URI recordUri,
                       List<String> titles,
                       List<RecordIdentifier> recordIdents,
@@ -100,7 +90,7 @@ public class BasicRecord implements Record
       return items;
    }
 
-   public class BasicRecordIdentifier implements RecordIdentifier
+   public static class BasicRecordIdentifier implements RecordIdentifier
    {
       private final IdType idType;
       private final String id;

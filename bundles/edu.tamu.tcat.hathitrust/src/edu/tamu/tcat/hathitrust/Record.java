@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface Record
 {
-   enum IdType {
+   public enum IdType {
       ISBN, ISSN, OCLC, LCCN, HTID, RECORDNUMBER
    }
 

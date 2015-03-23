@@ -13,6 +13,7 @@ import edu.tamu.tcat.hathitrust.Item;
 import edu.tamu.tcat.hathitrust.MarcRecord;
 import edu.tamu.tcat.hathitrust.Record;
 import edu.tamu.tcat.hathitrust.client.v1.basic.BasicRecord;
+import edu.tamu.tcat.hathitrust.client.v1.basic.BasicRecord.BasicRecordIdentifier;
 
 public class RecordDTO
 {
@@ -73,11 +74,10 @@ public class RecordDTO
 
       List<RecordIdentifier> addRecordIdents(List<String> identNums, IdType identType)
       {
-         BasicRecord record = new BasicRecord();
          List<RecordIdentifier> recordIdents = new ArrayList<>();
          for(String identNum : identNums)
          {
-            BasicRecord.BasicRecordIdentifier recordIdent = record.new BasicRecordIdentifier(identType, identNum);
+            BasicRecord.BasicRecordIdentifier recordIdent = new BasicRecordIdentifier(identType, identNum);
             recordIdents.add(recordIdent);
          }
 
