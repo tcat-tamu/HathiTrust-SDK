@@ -52,13 +52,13 @@ public class BasicItem implements Item
    @Override
    public String getOriginatingInstitution()
    {
-      return fromRecord;
+      return orig;
    }
 
    @Override
    public String getRecordId()
    {
-      return htid;
+      return fromRecord;
    }
 
    @Override
@@ -73,6 +73,13 @@ public class BasicItem implements Item
    {
       // TODO Auto-generated method stub
       return null;
+   }
+
+   @Override
+   public String getItemId()
+   {
+      // TODO Auto-generated method stub
+      return htid;
    }
 
 }

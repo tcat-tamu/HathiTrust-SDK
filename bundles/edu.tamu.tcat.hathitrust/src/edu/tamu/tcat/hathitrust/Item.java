@@ -12,6 +12,8 @@ public interface Item
    // IMPLEMENTATION NOTE: This will typically not have access to all data. It will need to
    // execute possibly time intensive queries to the underlying REST API layer.
 
+   String getItemId();
+
    URI getItemURL();
 
    String getOriginatingInstitution();

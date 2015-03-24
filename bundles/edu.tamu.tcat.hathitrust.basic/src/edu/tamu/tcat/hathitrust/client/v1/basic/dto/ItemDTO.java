@@ -64,7 +64,7 @@ public class ItemDTO
 
    private static final class ItemImpl implements Item
    {
-      private final String id;
+      private final String itemId;
       private final String recordId;
       private final URI itemUrl;
       private final String institution;
@@ -74,7 +74,7 @@ public class ItemDTO
       {
          this.itemUrl = URI.create(item.itemURL);
          this.institution = item.orig;
-         this.id = item.htid;
+         this.itemId = item.htid;
          this.recordId = item.fromRecord;
          // item.lastUpdate;  // TODO parse this into LocalDate?
          // this.rights = rights; lookup
@@ -109,6 +109,13 @@ public class ItemDTO
       {
          // TODO Auto-generated method stub
          return null;
+      }
+
+      @Override
+      public String getItemId()
+      {
+         // TODO Auto-generated method stub
+         return itemId;
       }
    }
 }
