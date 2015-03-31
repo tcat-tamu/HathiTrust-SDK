@@ -10,6 +10,10 @@ import org.junit.Test;
 
 import edu.tamu.tcat.hathitrust.basic.oauth.HathiTrustAPICommandBuilder;
 import edu.tamu.tcat.hathitrust.basic.oauth.SimpleParameter;
+import edu.tamu.tcat.hathitrust.client.DataAPI;
+import edu.tamu.tcat.hathitrust.client.DataAPI.DataFormat;
+import edu.tamu.tcat.hathitrust.client.DataAPI.ImageFormat;
+import edu.tamu.tcat.hathitrust.client.v1.basic.DataApiImpl;
 
 
 public class TestHathiTrustConnection
@@ -35,6 +39,21 @@ public class TestHathiTrustConnection
       StatusLine statusLine = response.getStatusLine();
       System.out.println(statusLine);
       assertEquals("Request did not return 200", 200, statusLine.getStatusCode());
+   }
+
+   @Test
+   public void executeDataAPITest()
+   {
+      String htid = "loc.ark:/13960/t3bz7b19z";
+      DataAPI data = new DataApiImpl();
+
+      String aggregateFileName = data.getAggregate(htid);
+      String structureFileName = data.getStructure(htid, DataFormat.json);
+      String volumeMetaFilename = data.getVolumeMeta(htid, DataFormat.json);
+      String pageMetaFileName = data.getPageMeta(htid, DataFormat.json, 89);
+      String pageImageFileName = data.getPageImage(htid, ImageFormat.jpeg, 89);
+      String pageOCRFileName = data.getPageOCR(htid, 89);
+      String pageCoordOCRFileName = data.getPageCoordOCR(htid, 89);
    }
 
 }
