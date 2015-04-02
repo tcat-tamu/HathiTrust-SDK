@@ -21,17 +21,15 @@ public class DataApiImpl implements DataAPI
    private final String key = "f5a66701ca";
    private final String access = "a6bd838c2643e8686881d8b77bd5";
    private final URI base = URI.create("https://babel.hathitrust.org/cgi/htd");
-   private HathiTrustAPICommandBuilder req;
-   private FileOutputStream fileOut = null;
+   private final Path tempPath = Paths.get("C:\\Users\\jesse.mitchell\\Documents\\SDA\\Documents\\");
 
    public DataApiImpl()
    {
-
    }
 
    private String sendRequest(URI htDataApi, String formatType, Path tempFile)
    {
-      req = new HathiTrustAPICommandBuilder();
+      HathiTrustAPICommandBuilder req = new HathiTrustAPICommandBuilder();
       req.setCredentials(key, access);
       req.setUri(htDataApi);
       req.setMethod("GET");
@@ -39,15 +37,14 @@ public class DataApiImpl implements DataAPI
       if(!formatType.isEmpty())
          req.addParameter(SimpleParameter.create("format", formatType));
 
-      HttpResponse response;
       try
       {
-         response = req.build().call();
+         HttpResponse response = req.build().call();
          if(response.getStatusLine().getStatusCode() != 200)
             throw new IllegalStateException("An error occured while retreiving data from HathiTrust URI: [" + htDataApi + "]");
 
          InputStream content = response.getEntity().getContent();
-         fileOut = new FileOutputStream(tempFile.toFile());
+         FileOutputStream fileOut = new FileOutputStream(tempFile.toFile());
          int c;
 
          while ((c = content.read()) != -1)
@@ -72,7 +69,7 @@ public class DataApiImpl implements DataAPI
    public String getAggregate(String htid)
    {
       URI aggregate = base.resolve("htd/aggregate/" + htid);
-      Path temp = Paths.get("C:\\Users\\jesse.mitchell\\Documents\\SDA\\Documents\\aggregate.zip");
+      Path temp = tempPath.resolve("aggregate.zip");
       return sendRequest(aggregate, "", temp);
    }
 
@@ -80,7 +77,7 @@ public class DataApiImpl implements DataAPI
    public String getStructure(String htid, DataFormat format)
    {
       URI aggregate = base.resolve("htd/structure/" + htid);
-      Path temp = Paths.get("C:\\Users\\jesse.mitchell\\Documents\\SDA\\Documents\\structure.txt");
+      Path temp = tempPath.resolve("structure.txt");
       return sendRequest(aggregate, format.toString(), temp);
 
    }
@@ -89,7 +86,7 @@ public class DataApiImpl implements DataAPI
    public String getVolume(String htid, DataFormat format)
    {
 //      URI aggregate = base.resolve("htd/volume/" + htid);
-//      Path temp = Paths.get("C:\\Users\\jesse.mitchell\\Documents\\SDA\\Documents\\volume.pdf");
+//      Path temp = tempPath.resolve("volume.pdf");
 //      return sendRequest(aggregate, format.toString(), temp);
       throw new UnsupportedOperationException();
    }
@@ -98,7 +95,7 @@ public class DataApiImpl implements DataAPI
    public String getVolumeMeta(String htid, DataFormat format)
    {
       URI aggregate = base.resolve("htd/volume/meta/" + htid);
-      Path temp = Paths.get("C:\\Users\\jesse.mitchell\\Documents\\SDA\\Documents\\VolumeMeta.txt");
+      Path temp = tempPath.resolve("VolumeMeta.txt");
       return sendRequest(aggregate, format.toString(), temp);
    }
 
@@ -106,7 +103,7 @@ public class DataApiImpl implements DataAPI
    public String getPageMeta(String htid, DataFormat format, int pageSeqNum)
    {
       URI aggregate = base.resolve("htd/volume/pagemeta/" + htid + "/" + pageSeqNum);
-      Path temp = Paths.get("C:\\Users\\jesse.mitchell\\Documents\\SDA\\Documents\\VolumePageMeta.txt");
+      Path temp = tempPath.resolve("VolumePageMeta.txt");
       return sendRequest(aggregate, format.toString(), temp);
    }
 
@@ -114,7 +111,7 @@ public class DataApiImpl implements DataAPI
    public String getPageImage(String htid, ImageFormat format, int pageSeqNum)
    {
       URI aggregate = base.resolve("htd/volume/pageimage/" + htid + "/" + pageSeqNum);
-      Path temp = Paths.get("C:\\Users\\jesse.mitchell\\Documents\\SDA\\Documents\\VolumePageImage." + format.toString());
+      Path temp = tempPath.resolve("VolumePageImage." + format.toString());
       return sendRequest(aggregate, format.toString(), temp);
    }
 
@@ -122,7 +119,7 @@ public class DataApiImpl implements DataAPI
    public String getPageOCR(String htid, int pageSeqNum)
    {
       URI aggregate = base.resolve("htd/volume/pageocr/" + htid + "/" + pageSeqNum);
-      Path temp = Paths.get("C:\\Users\\jesse.mitchell\\Documents\\SDA\\Documents\\VolumePageOCR.txt");
+      Path temp = tempPath.resolve("VolumePageOCR.txt");
       return sendRequest(aggregate, "", temp);
    }
 
@@ -130,7 +127,7 @@ public class DataApiImpl implements DataAPI
    public String getPageCoordOCR(String htid, int pageSeqNum)
    {
       URI aggregate = base.resolve("htd/volume/pagecoordocr/" + htid + "/" + pageSeqNum);
-      Path temp = Paths.get("C:\\Users\\jesse.mitchell\\Documents\\SDA\\Documents\\VolumePageCoordOCR.txt");
+      Path temp = tempPath.resolve("VolumePageCoordOCR.txt");
       return sendRequest(aggregate, "", temp);
    }
 }
