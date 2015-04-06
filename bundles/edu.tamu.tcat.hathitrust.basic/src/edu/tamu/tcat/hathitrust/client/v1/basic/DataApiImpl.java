@@ -43,19 +43,16 @@ public class DataApiImpl implements DataAPI
          if(response.getStatusLine().getStatusCode() != 200)
             throw new IllegalStateException("An error occured while retreiving data from HathiTrust URI: [" + htDataApi + "]");
 
-         InputStream content = response.getEntity().getContent();
-         FileOutputStream fileOut = new FileOutputStream(tempFile.toFile());
-         int c;
-
-         while ((c = content.read()) != -1)
+         try(InputStream content = response.getEntity().getContent();
+             FileOutputStream fileOut = new FileOutputStream(tempFile.toFile()))
          {
-            fileOut.write(c);
+            int c;
+            while ((c = content.read()) != -1)
+            {
+               fileOut.write(c);
+            }
+            return tempFile.getFileName().toString();
          }
-         if (fileOut != null)
-           fileOut.close();
-         if (content != null)
-            content.close();
-         return tempFile.getFileName().toString();
       }
       catch (Exception e)
       {
