@@ -4,8 +4,8 @@ import java.net.URI;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
 
-import edu.tamu.tcat.hathitrust.Item;
-import edu.tamu.tcat.hathitrust.Record;
+import edu.tamu.tcat.hathitrust.model.Item;
+import edu.tamu.tcat.hathitrust.model.Record;
 
 public class BasicRecord implements Record
 {

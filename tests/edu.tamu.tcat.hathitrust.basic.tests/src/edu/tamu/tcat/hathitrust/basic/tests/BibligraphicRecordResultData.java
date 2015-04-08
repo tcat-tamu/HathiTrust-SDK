@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import edu.tamu.tcat.hathitrust.Record;
 import edu.tamu.tcat.hathitrust.client.v1.basic.dto.ItemDTO;
 import edu.tamu.tcat.hathitrust.client.v1.basic.dto.RecordDTO;
+import edu.tamu.tcat.hathitrust.model.Record;
 
 public class BibligraphicRecordResultData
 {

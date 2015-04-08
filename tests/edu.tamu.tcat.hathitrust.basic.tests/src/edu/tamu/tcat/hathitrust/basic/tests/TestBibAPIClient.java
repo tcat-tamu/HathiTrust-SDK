@@ -12,12 +12,12 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import edu.tamu.tcat.hathitrust.Item;
-import edu.tamu.tcat.hathitrust.Record;
-import edu.tamu.tcat.hathitrust.Record.IdType;
-import edu.tamu.tcat.hathitrust.Record.RecordIdentifier;
 import edu.tamu.tcat.hathitrust.client.HathiTrustClientException;
 import edu.tamu.tcat.hathitrust.client.v1.basic.BibAPIClientImpl;
+import edu.tamu.tcat.hathitrust.model.Item;
+import edu.tamu.tcat.hathitrust.model.Record;
+import edu.tamu.tcat.hathitrust.model.Record.IdType;
+import edu.tamu.tcat.hathitrust.model.Record.RecordIdentifier;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.oss.json.jackson.JacksonJsonMapper;

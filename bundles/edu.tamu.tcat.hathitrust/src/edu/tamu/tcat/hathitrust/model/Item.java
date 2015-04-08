@@ -1,4 +1,4 @@
-package edu.tamu.tcat.hathitrust;
+package edu.tamu.tcat.hathitrust.model;
 
 import java.net.URI;
 import java.time.LocalDate;

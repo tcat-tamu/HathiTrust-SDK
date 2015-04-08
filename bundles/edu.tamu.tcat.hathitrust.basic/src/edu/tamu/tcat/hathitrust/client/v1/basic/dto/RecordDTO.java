@@ -9,10 +9,10 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.tamu.tcat.hathitrust.Item;
-import edu.tamu.tcat.hathitrust.Record;
 import edu.tamu.tcat.hathitrust.client.v1.basic.BasicRecord;
 import edu.tamu.tcat.hathitrust.client.v1.basic.BasicRecord.BasicRecordIdentifier;
+import edu.tamu.tcat.hathitrust.model.Item;
+import edu.tamu.tcat.hathitrust.model.Record;
 
 public class RecordDTO
 {

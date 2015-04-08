@@ -1,4 +1,4 @@
-package edu.tamu.tcat.hathitrust;
+package edu.tamu.tcat.hathitrust.model;
 
 public enum RightsCode
 {

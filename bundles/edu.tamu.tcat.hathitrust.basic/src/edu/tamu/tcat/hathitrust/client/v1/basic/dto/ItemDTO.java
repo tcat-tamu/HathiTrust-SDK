@@ -2,9 +2,9 @@ package edu.tamu.tcat.hathitrust.client.v1.basic.dto;
 
 import java.net.URI;
 
-import edu.tamu.tcat.hathitrust.Item;
-import edu.tamu.tcat.hathitrust.Record;
-import edu.tamu.tcat.hathitrust.RightsCode;
+import edu.tamu.tcat.hathitrust.model.Item;
+import edu.tamu.tcat.hathitrust.model.Record;
+import edu.tamu.tcat.hathitrust.model.RightsCode;
 
 public class ItemDTO
 {
