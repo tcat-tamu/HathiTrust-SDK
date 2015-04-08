@@ -40,7 +40,7 @@ public interface Item
     * @return The rights code as used in the downloadable files, describing the copyright
     *       status of the item and what users in various locales are able to do with it.
     */
-   RightsCode getRightsCode();
+   RightsCodeEnum getRightsCode();
 
    /**
     * @return The date this item was ingested or last changed (because, e.g., the rights

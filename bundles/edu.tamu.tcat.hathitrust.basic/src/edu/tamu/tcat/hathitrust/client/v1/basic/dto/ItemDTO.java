@@ -4,7 +4,7 @@ import java.net.URI;
 
 import edu.tamu.tcat.hathitrust.model.Item;
 import edu.tamu.tcat.hathitrust.model.Record;
-import edu.tamu.tcat.hathitrust.model.RightsCode;
+import edu.tamu.tcat.hathitrust.model.RightsCodeEnum;
 
 public class ItemDTO
 {
@@ -68,7 +68,7 @@ public class ItemDTO
       private final String recordId;
       private final URI itemUrl;
       private final String institution;
-      private RightsCode rights;
+      private RightsCodeEnum rights;
 
       ItemImpl(ItemDTO item)
       {
@@ -99,7 +99,7 @@ public class ItemDTO
       }
 
       @Override
-      public RightsCode getRightsCode()
+      public RightsCodeEnum getRightsCode()
       {
          return rights;
       }

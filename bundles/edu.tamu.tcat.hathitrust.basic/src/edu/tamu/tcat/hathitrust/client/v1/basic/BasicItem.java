@@ -4,7 +4,7 @@ import java.net.URI;
 
 import edu.tamu.tcat.hathitrust.model.Item;
 import edu.tamu.tcat.hathitrust.model.Record;
-import edu.tamu.tcat.hathitrust.model.RightsCode;
+import edu.tamu.tcat.hathitrust.model.RightsCodeEnum;
 
 public class BasicItem implements Item
 {
@@ -69,7 +69,7 @@ public class BasicItem implements Item
    }
 
    @Override
-   public RightsCode getRightsCode()
+   public RightsCodeEnum getRightsCode()
    {
       // TODO Auto-generated method stub
       return null;

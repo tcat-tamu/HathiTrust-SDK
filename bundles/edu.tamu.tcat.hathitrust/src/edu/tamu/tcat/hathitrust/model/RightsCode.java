@@ -2,107 +2,79 @@ package edu.tamu.tcat.hathitrust.model;
 
 import java.net.URI;
 
-public enum RightsCode implements IRightsCode
+/**
+ *  Provides information about the intellectual property and access rights of a particular
+ *  volume (Item) within HahtiTrust. Rights management within HathiTrust is a critical access
+ *  of managing a large digital library that includes both in copyright and out of copyright
+ *  works. This task is further complicated by requirements of various digitizers (e.g.,
+ *  Google, Internet Archives, various contributing institutions) and inconsistent international
+ *  copyright law.
+ *
+ *  <p>This interface provides a simple mechanism for representing and describing the rights
+ *  of individual resources provided by HathiTrust an is intended for use within programmatic
+ *  applications (e.g., to filter results that users cannot see or access) and for display
+ *  purposes to aid users in understanding how they can access various resources.
+ *
+ *  <p>For a more detailed description of the rights access and control policy implemented
+ *  within HathiTrust, please consult the documentation at
+ *  {@link http://www.hathitrust.org/rights_database} and {@link http://www.hathitrust.org/access_use}.
+ */
+public interface RightsCode
 {
-   // NOTE: See http://www.hathitrust.org/access_use
-   //       http://www.hathitrust.org/rights_database#Attributes
-//   http://www.hathitrust.org/rights_database#RightsAssignment
-   // These two definitions seem to be in conflict.
-   // This looks a lot like something that should be an extension point
 
-   // need to figure out rights determination reason code
-   // http://www.hathitrust.org/rights_database#Reasons
+   // NOTE may need to add types/support for ReasonCode, ContributingInstitution and RightsPrecedence
+   //      may generalize out to support non-HT material, notions of provenance, etc.
 
-   PublicDomain(1, "pd", RightsType.Copyright, "public domain"),
-   InCopyright(2, "ic", RightsType.Copyright, "in-copyright"),
-   OutOfPrint(3, "op", RightsType.Copyright, "out-of-print (implies in-copyright)"),
-   Orphan(4, "orph", RightsType.Copyright, "copyright-orphaned (implies in-copyright)"),
-   Undetermined(5, "und", RightsType.Copyright, "undetermined copyright status"),
-   UMAll(6, "umall", RightsType.Access, "available to UM affiliates and walk-in patrons (all campuses)"),
-   InCopyrightWorld(7, "ic-world", RightsType.Access, "in-copyright and permitted as world viewable by the copyright holder"),
-   Nobody(8, "nobody", RightsType.Access, "available to nobody; blocked for all users"),
-   PublicDomainUS(9, "pdus", RightsType.Copyright, "public domain only when viewed in the US"),
-   CC_BY_3(10, "cc-by-3.0", RightsType.Copyright, "Creative Commons Attribution license, 3.0 Unported"),
-   CC_BY_ND_3(11, "cc-by-nd-3.0", RightsType.Copyright, "Creative Commons Attribution-NoDerivatives license, 3.0 Unported"),
-   CC_BY_NC_ND_3(12, "cc-by-nc-nd-3.0", RightsType.Copyright, "Creative Commons Attribution-NonCommercial-NoDerivatives license, 3.0 Unported"),
-   CC_BY_NC_3(13, "cc-by-nc-3.0", RightsType.Copyright, "Creative Commons Attribution-NonCommercial license, 3.0 Unported"),
-   CC_BY_NC_SA_3(14, "cc-by-nc-sa-3.0", RightsType.Copyright, "Creative Commons Attribution-NonCommercial-ShareAlike license, 3.0 Unported"),
-   CC_BY_SA_3(15, "cc-by-sa-3.0", RightsType.Copyright, "Creative Commons Attribution-ShareAlike license, 3.0 Unported"),
-   OrphanCandidate(16, "orphcand", RightsType.Copyright, "orphan candidate - in 90-day holding period (implies in-copyright)"),
-   CC0(17, "cc-zero", RightsType.Copyright, "Creative Commons Zero license (implies pd)"),
-   UndeterminedWorld(18, "und-world", RightsType.Access, "undetermined copyright status and permitted as world viewable by the depositor"),
-   InCopyrightUS(19, "icus", RightsType.Copyright, "in copyright in the US"),
-   CC_BY_4(20, "cc-by-4.0", RightsType.Copyright, "Creative Commons Attribution 4.0 International license"),
-   CC_BY_ND_4(21, "cc-by-nd-4.0", RightsType.Copyright, "Creative Commons Attribution-NoDerivatives 4.0 International license"),
-   CC_BY_NC_ND_4(22, "cc-by-nc-nd-4.0", RightsType.Copyright, "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International license"),
-   CC_BY_NC_4(23, "cc-by-nc-4.0", RightsType.Copyright, "Creative Commons Attribution-NonCommercial 4.0 International license"),
-   CC_BY_NC_SA_4(24, "cc-by-nc-sa-4.0", RightsType.Copyright, "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license"),
-   CC_BY_SA_4(25, "cc-by-sa-4.0", RightsType.Copyright, "Creative Commons Attribution-ShareAlike 4.0 International license");
-//   http://schemas.hathitrust.org/htd/2009#pd
-//   http://schemas.hathitrust.org/htd/2009#pd-google
-//      http://schemas.hathitrust.org/htd/2009#pd-us
-//      http://schemas.hathitrust.org/htd/2009#pd-us-google
-//      http://schemas.hathitrust.org/htd/2009#oa
-//      http://schemas.hathitrust.org/htd/2009#oa-google
-//      http://schemas.hathitrust.org/htd/2009#section108
-//      http://schemas.hathitrust.org/htd/2009#ic
-//      http://schemas.hathitrust.org/htd/2009#cc-by
-//      http://schemas.hathitrust.org/htd/2009#cc-by-nd
-//      http://schemas.hathitrust.org/htd/2009#cc-by-nc-nd
-//      http://schemas.hathitrust.org/htd/2009#cc-by-nc
-//      http://schemas.hathitrust.org/htd/2009#cc-by-nc-sa
-//      http://schemas.hathitrust.org/htd/2009#cc-by-sa
-//      http://schemas.hathitrust.org/htd/2009#cc-zero
-//      http://schemas.hathitrust.org/htd/2009#und-world
+   public enum RightsType {
+      /**
+       * Codes that characterize the copyright status of the volume. Examples of this type of
+       * attribute are "public domain," "public domain when viewed in the U.S." and
+       * "in-copyright"; each attribute is only present when appropriate. Intended to insulate
+       * codes from frequent change and provide ensure accuracy in legal terms.
+       */
+      Copyright,
 
-   public final int id;
-   public final String key;
-   public final RightsType type;
-   public final String description;
-
-   private RightsCode(int id, String key, RightsType type, String description)
-   {
-      this.id = id;
-      this.key = key;
-      this.type = type;
-      this.description = description;
-
+      /**
+       * Codes that directly specify access control rules as distinct from characterizing
+       * the volume in terms of copyright status.
+       */
+      Access
    }
 
-   @Override
-   public int getId()
-   {
-      return id;
-   }
+   /**
+    * @return A unique, numeric key for identifying this code.
+    */
+   int getId();
 
-   @Override
-   public URI getUri()
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
+   /**
+    * @return A URI for uniquely identifying this rights code in RDF or similar contexts.
+    */
+   URI getUri();
 
-   @Override
-   public String getKey()
-   {
-      return key;
-   }
+   /**
+    * @return A short alphabetic key for identifying this rights code.
+    */
+   String getKey();
 
-   @Override
-   public RightsType getType()
-   {
-      return type;
-   }
+   /**
+    * HathiTrust identifies two types of rights status. The {@link RightsType#Copyright}
+    * codes indicate the copyright status of the referenced work. The
+    * {@link RightsType#Access} indicates which users may access this work depending on
+    * a combination of their location and institutional affiliation.
+    *
+    * @return The type of this rights code.
+    */
+   RightsType getType();
 
-   @Override
-   public String getTitle()
-   {
-      return description;
-   }
+   /**
+    * @return A title for display.
+    */
+   String getTitle();
 
-   @Override
-   public String getDescription()
-   {
-      return description;
-   }
+   /**
+    * @return A detailed description of this rights code to aid users in understanding the
+    *       legal and technical ramifications.
+    */
+   String getDescription();
+
 }
