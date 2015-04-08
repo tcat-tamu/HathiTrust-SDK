@@ -5,7 +5,9 @@ public enum RightsCode
    // NOTE: See http://www.hathitrust.org/access_use
    //       http://www.hathitrust.org/rights_database#Attributes
    // These two definitions seem to be in conflict.
-   
+   // This looks a lot like something that should be an extension point
+
+
    PublicDomain(1, "pd", RightsType.Copyright, "public domain"),
    InCopyright(2, "ic", RightsType.Copyright, "in-copyright"),
    OutOfPrint(3, "op", RightsType.Copyright, "out-of-print (implies in-copyright)"),
