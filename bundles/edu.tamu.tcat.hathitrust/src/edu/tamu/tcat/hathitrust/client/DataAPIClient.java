@@ -1,6 +1,6 @@
 package edu.tamu.tcat.hathitrust.client;
 
-public interface DataAPI
+public interface DataAPIClient
 {
    public enum DataFormat
    {
@@ -19,7 +19,7 @@ public interface DataAPI
    }
 
    /**
-    * HathiTrust DataAPI /aggregate provides a compressed file that contains 3 separate files for each page of a work.
+    * HathiTrust DataAPIClient /aggregate provides a compressed file that contains 3 separate files for each page of a work.
     *    jp2 image file
     *    txt file containing the text of the image file.
     *    xml file containing coords of each word contained in the image file.
@@ -32,7 +32,7 @@ public interface DataAPI
    String getStructure(String htid, DataFormat format);
 
    /**
-    * HathTrust DataAPI /volume is currently restricted to a project outside of our scope.
+    * HathTrust DataAPIClient /volume is currently restricted to a project outside of our scope.
     * If the future it could support pdf | epub documents
     * @param htid
     * @param format

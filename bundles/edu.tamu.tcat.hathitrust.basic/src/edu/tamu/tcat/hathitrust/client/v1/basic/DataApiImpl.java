@@ -12,9 +12,9 @@ import org.apache.http.HttpResponse;
 
 import edu.tamu.tcat.hathitrust.basic.oauth.HathiTrustAPICommandBuilder;
 import edu.tamu.tcat.hathitrust.basic.oauth.SimpleParameter;
-import edu.tamu.tcat.hathitrust.client.DataAPI;
+import edu.tamu.tcat.hathitrust.client.DataAPIClient;
 
-public class DataApiImpl implements DataAPI
+public class DataApiImpl implements DataAPIClient
 {
    // TODO: Pull key, access and base URI from configuration properties.
    Logger logger = Logger.getLogger("edu.tamu.tcat.hathitrust.client.v1.basic");

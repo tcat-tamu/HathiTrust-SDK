@@ -10,9 +10,9 @@ import org.junit.Test;
 
 import edu.tamu.tcat.hathitrust.basic.oauth.HathiTrustAPICommandBuilder;
 import edu.tamu.tcat.hathitrust.basic.oauth.SimpleParameter;
-import edu.tamu.tcat.hathitrust.client.DataAPI;
-import edu.tamu.tcat.hathitrust.client.DataAPI.DataFormat;
-import edu.tamu.tcat.hathitrust.client.DataAPI.ImageFormat;
+import edu.tamu.tcat.hathitrust.client.DataAPIClient;
+import edu.tamu.tcat.hathitrust.client.DataAPIClient.DataFormat;
+import edu.tamu.tcat.hathitrust.client.DataAPIClient.ImageFormat;
 import edu.tamu.tcat.hathitrust.client.v1.basic.DataApiImpl;
 
 
@@ -45,7 +45,7 @@ public class TestHathiTrustConnection
    public void executeDataAPITest()
    {
       String htid = "loc.ark:/13960/t3bz7b19z";
-      DataAPI data = new DataApiImpl();
+      DataAPIClient data = new DataApiImpl();
 
       String aggregateFileName = data.getAggregate(htid);
       String structureFileName = data.getStructure(htid, DataFormat.json);
