@@ -94,11 +94,17 @@ public class BasicRecord implements Record
    {
       private final IdType idType;
       private final String id;
+      private final String itemId;
 
-      public BasicRecordIdentifier(IdType idType, String id)
+      public BasicRecordIdentifier(IdType idType, String id) {
+         this(idType, id, null);
+      }
+
+      public BasicRecordIdentifier(IdType idType, String id, String itemId)
       {
          this.idType = idType;
          this.id = id;
+         this.itemId = itemId;
       }
 
       @Override
@@ -111,6 +117,12 @@ public class BasicRecord implements Record
       public String getId()
       {
          return id;
+      }
+
+      @Override
+      public String getItemId()
+      {
+         return itemId;
       }
 
    }

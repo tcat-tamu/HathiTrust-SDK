@@ -24,6 +24,11 @@ public interface Record
        * @return The value for this identifier.
        */
       String getId();
+
+      /**
+       * @return The particular item ID (if any) for this record
+       */
+      String getItemId();
    }
 
    /**
