@@ -46,10 +46,6 @@ public class BibAPIClientImpl implements BibliographicAPIClient
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
    }
 
-   public void setJsonMapper()
-   {
-   }
-
    public void activate()
    {
 
