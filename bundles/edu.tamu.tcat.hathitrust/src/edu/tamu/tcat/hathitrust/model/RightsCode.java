@@ -1,12 +1,17 @@
 package edu.tamu.tcat.hathitrust.model;
 
-public enum RightsCode
+import java.net.URI;
+
+public enum RightsCode implements IRightsCode
 {
    // NOTE: See http://www.hathitrust.org/access_use
    //       http://www.hathitrust.org/rights_database#Attributes
+//   http://www.hathitrust.org/rights_database#RightsAssignment
    // These two definitions seem to be in conflict.
    // This looks a lot like something that should be an extension point
 
+   // need to figure out rights determination reason code
+   // http://www.hathitrust.org/rights_database#Reasons
 
    PublicDomain(1, "pd", RightsType.Copyright, "public domain"),
    InCopyright(2, "ic", RightsType.Copyright, "in-copyright"),
@@ -64,7 +69,40 @@ public enum RightsCode
 
    }
 
-   public enum RightsType {
-      Copyright, Access
+   @Override
+   public int getId()
+   {
+      return id;
+   }
+
+   @Override
+   public URI getUri()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public String getKey()
+   {
+      return key;
+   }
+
+   @Override
+   public RightsType getType()
+   {
+      return type;
+   }
+
+   @Override
+   public String getTitle()
+   {
+      return description;
+   }
+
+   @Override
+   public String getDescription()
+   {
+      return description;
    }
 }
