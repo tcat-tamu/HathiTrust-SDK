@@ -5,7 +5,6 @@ import java.time.temporal.TemporalAccessor;
 import java.util.List;
 
 import edu.tamu.tcat.hathitrust.Item;
-import edu.tamu.tcat.hathitrust.MarcRecord;
 import edu.tamu.tcat.hathitrust.Record;
 
 public class BasicRecord implements Record
@@ -15,14 +14,14 @@ public class BasicRecord implements Record
    private final List<String> titles;
    private final List<RecordIdentifier> recordIdents;
    private final List<TemporalAccessor> publishedDates;
-   private final MarcRecord marc;
+   private final String marc;
    private final List<Item> items;
 
    public BasicRecord(String id, URI recordUri,
                       List<String> titles,
                       List<RecordIdentifier> recordIdents,
                       List<TemporalAccessor> publishedDates,
-                      MarcRecord marc,
+                      String marc,
                       List<Item> items)
    {
       this.id = id;
@@ -34,6 +33,7 @@ public class BasicRecord implements Record
       this.items = items;
    }
 
+   // FIXME must supply a mechanism to retrieve MARC record
    public BasicRecord(String id, URI recordUri,
                       List<String> titles,
                       List<RecordIdentifier> recordIdents,
@@ -45,9 +45,10 @@ public class BasicRecord implements Record
       this.titles = titles;
       this.recordIdents = recordIdents;
       this.publishedDates = publishedDates;
-      this.marc = null;
+      this.marc = null;    // FIXME
       this.items = items;
    }
+
    @Override
    public String getId()
    {
@@ -79,7 +80,7 @@ public class BasicRecord implements Record
    }
 
    @Override
-   public MarcRecord getMarcRecord()
+   public String getMarcRecordXML()
    {
       return marc;
    }
@@ -120,7 +121,7 @@ public class BasicRecord implements Record
       }
 
       @Override
-      public String getItemId()
+      public String getRecordId()
       {
          return itemId;
       }

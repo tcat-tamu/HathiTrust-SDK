@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import edu.tamu.tcat.hathitrust.Item;
-import edu.tamu.tcat.hathitrust.MarcRecord;
 import edu.tamu.tcat.hathitrust.Record;
 import edu.tamu.tcat.hathitrust.client.v1.basic.BasicRecord;
 import edu.tamu.tcat.hathitrust.client.v1.basic.BasicRecord.BasicRecordIdentifier;
@@ -41,7 +40,7 @@ public class RecordDTO
       private final List<String> titles;
       private final List<RecordIdentifier> recordIdents = new ArrayList<>();
       private final List<TemporalAccessor> publishedDates;
-      private final MarcRecord marc;
+      private final String marc;
       private final List<Item> items;
 
       RecordImpl(Map.Entry<String, RecordDTO> recordEntry, List<ItemDTO> items)
@@ -121,7 +120,7 @@ public class RecordDTO
       }
 
       @Override
-      public MarcRecord getMarcRecord()
+      public String getMarcRecordXML()
       {
          return marc;
       }

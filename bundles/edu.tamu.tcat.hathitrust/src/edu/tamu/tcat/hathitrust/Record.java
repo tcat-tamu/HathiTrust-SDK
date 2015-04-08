@@ -4,6 +4,12 @@ import java.net.URI;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
 
+/**
+ *  A description of a bibliographic entity (a book, serial, etc) as provided by HathiTrust.
+ *
+ *  @see http://www.hathitrust.org/bib_api for documentation of the HathiTrust Bibliographic API.
+ *
+ */
 public interface Record
 {
    public enum IdType {
@@ -26,9 +32,9 @@ public interface Record
       String getId();
 
       /**
-       * @return The particular item ID (if any) for this record
+       * @return The particular HathiTrust ID (if any) for this record.
        */
-      String getItemId();
+      String getRecordId();
    }
 
    /**
@@ -60,12 +66,17 @@ public interface Record
    List<TemporalAccessor> getPublishDates();
 
    /**
-    * @return The MARC catalog record for this resource.
+    * @return The MARC catalog record for this resource. Note that this may involve a call
+    *    to the HathiTrust API and consequently may be a long-running request and fail unexpectedly.
+    * @throws IllegalStateException If the marc record cannot be retrieved.
+    * @deprecated To be replaced with a method that returns a structured POJO representation
+    *    of the MARC record.
     */
-   MarcRecord getMarcRecord();
+   @Deprecated
+   String getMarcRecordXML() throws IllegalStateException;
 
    /**
-    * @return
+    * @return A list of all {@link Item}s associated with this record.
     */
    List<Item> getItems();
 
@@ -80,5 +91,5 @@ public interface Record
 //          "lccns":["62009520"],
 //          "publishDates":["1962"]
 //     }
-// },
+// }
 }
