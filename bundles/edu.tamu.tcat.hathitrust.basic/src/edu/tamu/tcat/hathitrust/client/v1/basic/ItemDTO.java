@@ -1,9 +1,11 @@
-package edu.tamu.tcat.hathitrust.client.v1.basic.dto;
+package edu.tamu.tcat.hathitrust.client.v1.basic;
 
 import java.net.URI;
+import java.time.LocalDate;
 
 import edu.tamu.tcat.hathitrust.model.Item;
 import edu.tamu.tcat.hathitrust.model.Record;
+import edu.tamu.tcat.hathitrust.model.RightsCode;
 import edu.tamu.tcat.hathitrust.model.RightsCodeEnum;
 
 public class ItemDTO
@@ -81,6 +83,12 @@ public class ItemDTO
       }
 
       @Override
+      public String getItemId()
+      {
+         return itemId;
+      }
+
+      @Override
       public URI getItemURL()
       {
          return itemUrl;
@@ -99,7 +107,7 @@ public class ItemDTO
       }
 
       @Override
-      public RightsCodeEnum getRightsCode()
+      public RightsCode getRightsCode()
       {
          return rights;
       }
@@ -108,14 +116,25 @@ public class ItemDTO
       public Record getRecord()
       {
          // TODO Auto-generated method stub
-         return null;
+         throw new UnsupportedOperationException();
       }
-
       @Override
-      public String getItemId()
+      public LocalDate getLastUpdate()
       {
          // TODO Auto-generated method stub
-         return itemId;
+         return null;
+      }
+      @Override
+      public String getRightsDisplayLabel()
+      {
+         // TODO Auto-generated method stub
+         return null;
+      }
+      @Override
+      public String getSortKey()
+      {
+         // TODO Auto-generated method stub
+         return null;
       }
    }
 }

@@ -1,76 +1,23 @@
 package edu.tamu.tcat.hathitrust.model;
 
 import java.net.URI;
-import java.time.temporal.TemporalAccessor;
+import java.net.URISyntaxException;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-public class RecordDTO
+import edu.tamu.tcat.hathitrust.model.Record.IdType;
+import edu.tamu.tcat.hathitrust.model.Record.RecordIdentifier;
+
+public final class RecordDTO
 {
-
-   public static RecordDTO create(Record record)
-   {
-      return null;
-   }
-
-   public static Record instantiate(RecordDTO dto)
-   {
-      return null;
-   }
-
-   private class BasicRecord implements Record
-   {
-
-      @Override
-      public String getId()
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
-
-      @Override
-      public URI getRecordURL()
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
-
-      @Override
-      public List<String> getTitles()
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
-
-      @Override
-      public List<RecordIdentifier> getIdentifiers(IdType type)
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
-
-      @Override
-      public List<TemporalAccessor> getPublishDates()
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
-
-      @Override
-      public String getMarcRecordXML()
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
-
-      @Override
-      public List<Item> getItems()
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
-   }
-
+   private static final Logger logger = Logger.getLogger(RecordDTO.class.getName());
 
    public String id;
    public String uri;
@@ -79,4 +26,82 @@ public class RecordDTO
    public List<String> publicationDates;
    public String markXml;
 
+   public static RecordDTO create(Record record)
+   {
+      RecordDTO dto = new RecordDTO();
+      dto.id = record.getId();
+      dto.uri = record.getRecordURL().toString();
+      dto.titles = new ArrayList<>(record.getTitles());
+      Map<String, List<String>> idents = new HashMap<>();
+      for (RecordIdentifier identifier : record.getIdentifiers())
+      {
+         String key = identifier.getScheme().toString();
+         if (!idents.containsKey(key))
+         {
+            idents.put(key, new ArrayList<>());
+         }
+
+         idents.get(key).add(identifier.getId());
+      }
+      dto.identifiers = idents;
+
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+      dto.publicationDates = record.getPublishDates().parallelStream()
+            .map(date -> date.format(formatter))
+            .collect(Collectors.toList());
+      dto.markXml = record.getMarcRecordXML();
+
+      // TODO add support for items?
+
+      return dto;
+   }
+
+   public static Record instantiate(RecordDTO dto)
+   {
+      // FIXME need to supply source for items and Marc record
+      try
+      {
+         URI uri = new URI(dto.uri);
+         List<String> titles = new ArrayList<>(dto.titles);
+
+         return new BasicRecord(dto.id, uri, titles, parseIdentifiers(dto), parseDates(dto));
+
+      }
+      catch (URISyntaxException e)
+      {
+         throw new IllegalArgumentException("Invalid record URI [" + dto.uri + "]", e);
+      }
+   }
+
+   private static List<RecordIdentifier> parseIdentifiers(RecordDTO dto)
+   {
+      List<RecordIdentifier> identifiers = new ArrayList<>();
+      dto.identifiers.forEach((type, ids) ->
+      {
+         IdType idType = IdType.valueOf(type);
+         List<BasicRecordIdentifier> values = ids.parallelStream()
+            .map(ident -> new BasicRecordIdentifier(idType, ident))
+            .collect(Collectors.toList());
+         identifiers.addAll(values);
+      });
+      return identifiers;
+   }
+
+   private static List<Year> parseDates(RecordDTO dto)
+   {
+      return dto.publicationDates.parallelStream()
+                .map(strDate -> {
+                   try
+                   {
+                      return Year.parse(strDate);
+                   }
+                   catch (Exception ex)
+                   {
+                      logger.log(Level.WARNING, "Failed to parse supplied date [" + strDate + "].", ex);
+                      return null;
+                   }
+                })
+                .filter(d -> d != null)
+                .collect(Collectors.toList());
+   }
 }

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.hathitrust.client.v1.basic.dto;
+package edu.tamu.tcat.hathitrust.client.v1.basic;
 
 import java.net.URI;
 import java.time.temporal.TemporalAccessor;

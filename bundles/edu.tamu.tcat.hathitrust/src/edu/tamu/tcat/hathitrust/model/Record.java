@@ -1,14 +1,13 @@
 package edu.tamu.tcat.hathitrust.model;
 
 import java.net.URI;
-import java.time.temporal.TemporalAccessor;
+import java.time.Year;
 import java.util.List;
 
 /**
  *  A description of a bibliographic entity (a book, serial, etc) as provided by HathiTrust.
  *
  *  @see http://www.hathitrust.org/bib_api for documentation of the HathiTrust Bibliographic API.
- *
  */
 public interface Record
 {
@@ -30,11 +29,6 @@ public interface Record
        * @return The value for this identifier.
        */
       String getId();
-
-      /**
-       * @return The particular HathiTrust ID (if any) for this record.
-       */
-      String getRecordId();
    }
 
    /**
@@ -55,6 +49,11 @@ public interface Record
    List<String> getTitles();
 
    /**
+    * @return the identifiers associated with this record
+    */
+   List<RecordIdentifier> getIdentifiers();
+
+   /**
     * @param type The type of identifier to return.
     * @return the identifiers associated with this record for the supplied identifier type.
     */
@@ -63,7 +62,7 @@ public interface Record
    /**
     * @return Publication dates associated with this entry.
     */
-   List<TemporalAccessor> getPublishDates();
+   List<Year> getPublishDates();
 
    /**
     * @return The MARC catalog record for this resource. Note that this may involve a call
