@@ -12,8 +12,8 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",
  com.google.common.collect;version="15.0.0",
  com.google.common.escape;version="15.0.0",
  com.google.common.net;version="15.0.0",
- edu.tamu.tcat.hathitrust,
  edu.tamu.tcat.hathitrust.client,
+ edu.tamu.tcat.hathitrust.model,
  edu.tamu.tcat.osgi.config;version="1.0.3",
  org.apache.commons.codec.binary;version="1.6.0",
  org.apache.http;version="4.2.5",
@@ -25,5 +25,4 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",
  org.apache.http.message;version="4.2.5",
  org.apache.http.params;version="4.2.5"
 Export-Package: edu.tamu.tcat.hathitrust.basic.oauth,
- edu.tamu.tcat.hathitrust.client.v1.basic,
- edu.tamu.tcat.hathitrust.client.v1.basic.dto
+ edu.tamu.tcat.hathitrust.client.v1.basic

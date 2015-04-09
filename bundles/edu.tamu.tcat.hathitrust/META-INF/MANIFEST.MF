@@ -5,5 +5,5 @@ Bundle-SymbolicName: edu.tamu.tcat.hathitrust
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: edu.tamu.tcat.hathitrust,
- edu.tamu.tcat.hathitrust.client
+Export-Package: edu.tamu.tcat.hathitrust.client,
+ edu.tamu.tcat.hathitrust.model
