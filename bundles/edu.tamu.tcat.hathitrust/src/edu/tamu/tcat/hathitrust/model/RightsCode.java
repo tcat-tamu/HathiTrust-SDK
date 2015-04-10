@@ -47,7 +47,8 @@ public interface RightsCode
    int getId();
 
    /**
-    * @return A URI for uniquely identifying this rights code in RDF or similar contexts.
+    * @return A URI for uniquely identifying this rights code in RDF or similar contexts. May
+    *       be {@code null} if no URI is defined.
     */
    URI getUri();
 

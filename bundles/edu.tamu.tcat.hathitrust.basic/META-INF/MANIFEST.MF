@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HathiTrust API Basic Implementation
-Bundle-SymbolicName: edu.tamu.tcat.hathitrust.basic
+Bundle-SymbolicName: edu.tamu.tcat.hathitrust.basic;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -23,6 +23,7 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",
  org.apache.http.entity;version="4.2.5",
  org.apache.http.impl.client;version="4.2.6",
  org.apache.http.message;version="4.2.5",
- org.apache.http.params;version="4.2.5"
+ org.apache.http.params;version="4.2.5",
+ org.eclipse.core.runtime;version="3.4.0"
 Export-Package: edu.tamu.tcat.hathitrust.basic.oauth,
  edu.tamu.tcat.hathitrust.client.v1.basic
