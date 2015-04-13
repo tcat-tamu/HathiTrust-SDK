@@ -29,6 +29,11 @@ public final class BasicRecordIdentifier implements RecordIdentifier
    }
 
    @Override
+   public String toString()
+   {
+      return idType + ":" + id;
+   }
+   @Override
    public boolean equals(Object obj)
    {
       if (!(obj instanceof BasicRecordIdentifier))
