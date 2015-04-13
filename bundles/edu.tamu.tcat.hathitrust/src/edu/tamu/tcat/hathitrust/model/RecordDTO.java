@@ -24,7 +24,7 @@ public final class RecordDTO
    public List<String> titles;
    public Map<String, List<String>> identifiers;
    public List<String> publicationDates;
-   public String markXml;
+   public String marcXml;
 
    public static RecordDTO create(Record record)
    {
@@ -49,7 +49,7 @@ public final class RecordDTO
       dto.publicationDates = record.getPublishDates().parallelStream()
             .map(date -> date.format(formatter))
             .collect(Collectors.toList());
-      dto.markXml = record.getMarcRecordXML();
+      dto.marcXml = record.getMarcRecordXML();
 
       // TODO add support for items?
 
@@ -64,8 +64,12 @@ public final class RecordDTO
          URI uri = new URI(dto.uri);
          List<String> titles = new ArrayList<>(dto.titles);
 
-         return new BasicRecord(dto.id, uri, titles, parseIdentifiers(dto), parseDates(dto));
-
+         return new BasicRecord(dto.id, uri, titles, parseIdentifiers(dto), parseDates(dto),
+               () -> dto.marcXml,
+               () -> {
+                  logger.log(Level.SEVERE, "Called unimplmeneted reference to get items");
+                  return new ArrayList<>();
+               });
       }
       catch (URISyntaxException e)
       {

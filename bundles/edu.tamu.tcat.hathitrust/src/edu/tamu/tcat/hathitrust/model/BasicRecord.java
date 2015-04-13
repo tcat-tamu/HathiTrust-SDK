@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.Year;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -18,24 +19,25 @@ public final class BasicRecord implements Record
       private final List<Year> publishedDates;
 
       // FIXME implement these
-      private final String marc;
-      private final List<Item> items;
+      private final Supplier<String> marc;
+      private final Supplier<List<Item>> itemsSupplier;
 
       // FIXME must supply a mechanism to retrieve MARC record and items
       public BasicRecord(String id,
                          URI recordUri,
                          List<String> titles,
                          List<RecordIdentifier> recordIdents,
-                         List<Year> publishedDates)
+                         List<Year> publishedDates,
+                         Supplier<String> marcXml,
+                         Supplier<List<Item>> itemsSupplier)
       {
          this.id = id;
          this.recordUri = recordUri;
          this.titles = titles;
          this.recordIdents = recordIdents;
          this.publishedDates = publishedDates;
-
-         this.marc = null;
-         this.items = null;
+         this.marc = marcXml;
+         this.itemsSupplier = itemsSupplier;
       }
 
       @Override
@@ -80,12 +82,12 @@ public final class BasicRecord implements Record
       @Override
       public String getMarcRecordXML()
       {
-         throw new UnsupportedOperationException();
+         return marc.get();
       }
 
       @Override
       public List<Item> getItems()
       {
-         throw new UnsupportedOperationException();
+         return itemsSupplier.get();
       }
 }

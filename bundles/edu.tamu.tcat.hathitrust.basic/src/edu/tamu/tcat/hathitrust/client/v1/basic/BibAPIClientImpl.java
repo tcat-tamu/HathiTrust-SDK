@@ -5,14 +5,12 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -126,24 +124,21 @@ public class BibAPIClientImpl implements BibliographicAPIClient
       return recordUri;
    }
 
-   private Collection<Record> constructRecords(HttpResponse resp) throws IOException, JsonMappingException
+   private Collection<Record> constructRecords(HttpResponse resp) throws IOException
    {
       BibligraphicRecordResult recordResult;
-      List<Record> records = new ArrayList<>();
       try (InputStream is = resp.getEntity().getContent())
       {
          recordResult = mapper.readValue(is, BibligraphicRecordResult.class);
-         for (Map.Entry<String, RecordDTO> record : recordResult.records.entrySet())
-         {
-            records.add(RecordDTO.instantiate(record, recordResult.items));
-         }
-
-         return records;
       }
-      catch (JsonParseException e)
+      catch (JsonParseException | JsonMappingException e)
       {
          throw new IllegalStateException("Failed to parse response from server.", e);
       }
+
+      return recordResult.records.keySet().stream()
+            .map(recordResult::createRecord)
+            .collect(Collectors.toSet());
    }
 
    /**

@@ -68,10 +68,7 @@ public interface Record
     * @return The MARC catalog record for this resource. Note that this may involve a call
     *    to the HathiTrust API and consequently may be a long-running request and fail unexpectedly.
     * @throws IllegalStateException If the marc record cannot be retrieved.
-    * @deprecated To be replaced with a method that returns a structured POJO representation
-    *    of the MARC record.
     */
-   @Deprecated
    String getMarcRecordXML() throws IllegalStateException;
 
    /**
