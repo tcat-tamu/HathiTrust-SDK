@@ -21,10 +21,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.hathitrust.client.BibliographicAPIClient;
-import edu.tamu.tcat.hathitrust.client.HathiTrustClientException;
-import edu.tamu.tcat.hathitrust.model.Record;
-import edu.tamu.tcat.hathitrust.model.Record.RecordIdentifier;
+import edu.tamu.tcat.hathitrust.HathiTrustClientException;
+import edu.tamu.tcat.hathitrust.bibliography.BibliographicAPIClient;
+import edu.tamu.tcat.hathitrust.bibliography.Record;
+import edu.tamu.tcat.hathitrust.bibliography.Record.RecordIdentifier;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 
 public class BibAPIClientImpl implements BibliographicAPIClient

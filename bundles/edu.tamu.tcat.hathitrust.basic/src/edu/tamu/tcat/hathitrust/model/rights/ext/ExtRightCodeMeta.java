@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 
-import edu.tamu.tcat.hathitrust.model.RightsCode;
+import edu.tamu.tcat.hathitrust.rights.RightsCode;
 
 /**
  *  Reads Eclipse plugin definitions {@link IConfigurationElement} to define a

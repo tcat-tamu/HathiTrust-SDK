@@ -3,10 +3,9 @@ package edu.tamu.tcat.hathitrust.client.v1.basic;
 import java.net.URI;
 import java.time.LocalDate;
 
-import edu.tamu.tcat.hathitrust.model.Item;
-import edu.tamu.tcat.hathitrust.model.Record;
-import edu.tamu.tcat.hathitrust.model.RightsCode;
-import edu.tamu.tcat.hathitrust.model.RightsCodeEnum;
+import edu.tamu.tcat.hathitrust.bibliography.Item;
+import edu.tamu.tcat.hathitrust.bibliography.Record;
+import edu.tamu.tcat.hathitrust.rights.RightsCode;
 
 public class ItemDTO
 {
@@ -70,7 +69,7 @@ public class ItemDTO
       private final String recordId;
       private final URI itemUrl;
       private final String institution;
-      private RightsCodeEnum rights;
+      private RightsCode rights;
 
       ItemImpl(ItemDTO item)
       {

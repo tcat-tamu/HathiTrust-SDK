@@ -1,4 +1,4 @@
-package edu.tamu.tcat.hathitrust.model;
+package edu.tamu.tcat.hathitrust.bibliography;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,8 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import edu.tamu.tcat.hathitrust.model.Record.IdType;
-import edu.tamu.tcat.hathitrust.model.Record.RecordIdentifier;
+import edu.tamu.tcat.hathitrust.bibliography.Record.IdType;
+import edu.tamu.tcat.hathitrust.bibliography.Record.RecordIdentifier;
 
 public final class RecordDTO
 {

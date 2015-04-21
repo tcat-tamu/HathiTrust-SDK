@@ -1,4 +1,4 @@
-package edu.tamu.tcat.hathitrust.model;
+package edu.tamu.tcat.hathitrust.bibliography;
 
 import java.net.URI;
 import java.time.Year;
@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import edu.tamu.tcat.hathitrust.bibliography.Record.IdType;
+import edu.tamu.tcat.hathitrust.bibliography.Record.RecordIdentifier;
 
 /**
  * Basic implementation of the {@link Record} interface.

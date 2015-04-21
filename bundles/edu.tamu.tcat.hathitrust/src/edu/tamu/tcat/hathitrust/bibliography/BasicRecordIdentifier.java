@@ -1,7 +1,7 @@
-package edu.tamu.tcat.hathitrust.model;
+package edu.tamu.tcat.hathitrust.bibliography;
 
-import edu.tamu.tcat.hathitrust.model.Record.IdType;
-import edu.tamu.tcat.hathitrust.model.Record.RecordIdentifier;
+import edu.tamu.tcat.hathitrust.bibliography.Record.IdType;
+import edu.tamu.tcat.hathitrust.bibliography.Record.RecordIdentifier;
 
 /**
  * Basic implementation of a record identifier.

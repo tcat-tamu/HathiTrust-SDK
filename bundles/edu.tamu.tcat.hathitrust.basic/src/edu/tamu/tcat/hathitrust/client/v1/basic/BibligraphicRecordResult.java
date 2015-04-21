@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import edu.tamu.tcat.hathitrust.model.BasicRecord;
-import edu.tamu.tcat.hathitrust.model.BasicRecordIdentifier;
-import edu.tamu.tcat.hathitrust.model.Item;
-import edu.tamu.tcat.hathitrust.model.Record;
-import edu.tamu.tcat.hathitrust.model.Record.IdType;
-import edu.tamu.tcat.hathitrust.model.Record.RecordIdentifier;
+import edu.tamu.tcat.hathitrust.bibliography.BasicRecord;
+import edu.tamu.tcat.hathitrust.bibliography.BasicRecordIdentifier;
+import edu.tamu.tcat.hathitrust.bibliography.Item;
+import edu.tamu.tcat.hathitrust.bibliography.Record;
+import edu.tamu.tcat.hathitrust.bibliography.Record.IdType;
+import edu.tamu.tcat.hathitrust.bibliography.Record.RecordIdentifier;
 
 public class BibligraphicRecordResult
 {

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.hathitrust.model;
+package edu.tamu.tcat.hathitrust.data;
 
 import java.awt.image.BufferedImage;
 

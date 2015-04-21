@@ -12,15 +12,14 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import edu.tamu.tcat.hathitrust.client.HathiTrustClientException;
+import edu.tamu.tcat.hathitrust.HathiTrustClientException;
+import edu.tamu.tcat.hathitrust.bibliography.Item;
+import edu.tamu.tcat.hathitrust.bibliography.Record;
+import edu.tamu.tcat.hathitrust.bibliography.Record.IdType;
+import edu.tamu.tcat.hathitrust.bibliography.Record.RecordIdentifier;
 import edu.tamu.tcat.hathitrust.client.v1.basic.BibAPIClientImpl;
-import edu.tamu.tcat.hathitrust.model.Item;
-import edu.tamu.tcat.hathitrust.model.Record;
-import edu.tamu.tcat.hathitrust.model.Record.IdType;
-import edu.tamu.tcat.hathitrust.model.Record.RecordIdentifier;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.oss.json.jackson.JacksonJsonMapper;
 
 public class TestBibAPIClient
 {
@@ -49,8 +48,6 @@ public class TestBibAPIClient
       assertTrue("Unable to connect to HathiTrust", client.canConnect());
 
       client.setConfig(new ConfigurationPropertiesImpl());
-      JacksonJsonMapper mapper = new JacksonJsonMapper();
-      mapper.activate();
 
       BibligraphicRecordResultData result = new BibligraphicRecordResultData();
       Record bibRecord = result.getBibRecord();
@@ -70,7 +67,7 @@ public class TestBibAPIClient
             assertEquals(bibRecordItems.getOriginatingInstitution(), recordResultItems.getOriginatingInstitution());
             assertEquals(bibRecordItems.getRightsCode(), recordResultItems.getRightsCode());
 
-            assertEquals(bibRecord.getMarcRecord(), recordResult.getMarcRecord());
+            assertEquals(bibRecord.getMarcRecordXML(), recordResult.getMarcRecordXML());
             assertEquals(bibRecord.getPublishDates(), recordResult.getPublishDates());
             assertEquals(bibRecord.getRecordURL(), recordResult.getRecordURL());
             assertEquals(bibRecord.getTitles(), recordResult.getTitles());
@@ -137,6 +134,5 @@ public class TestBibAPIClient
 
          return (T)"http://catalog.hathitrust.org/api/";
       }
-
    }
 }

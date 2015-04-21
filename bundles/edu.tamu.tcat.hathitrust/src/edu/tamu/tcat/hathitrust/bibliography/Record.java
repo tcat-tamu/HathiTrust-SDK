@@ -1,4 +1,4 @@
-package edu.tamu.tcat.hathitrust.model;
+package edu.tamu.tcat.hathitrust.bibliography;
 
 import java.net.URI;
 import java.time.Year;

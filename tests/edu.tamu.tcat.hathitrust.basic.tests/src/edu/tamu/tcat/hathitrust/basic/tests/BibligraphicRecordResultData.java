@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
+import edu.tamu.tcat.hathitrust.bibliography.Record;
 import edu.tamu.tcat.hathitrust.client.v1.basic.ItemDTO;
 import edu.tamu.tcat.hathitrust.client.v1.basic.RecordDTO;
-import edu.tamu.tcat.hathitrust.model.Record;
 
 public class BibligraphicRecordResultData
 {
@@ -146,10 +145,15 @@ public class BibligraphicRecordResultData
    {
       Map<String,RecordDTO> recordEntrys = buildRecordDTO();
       List<Record> records = new ArrayList<>();
-      for (Entry<String, RecordDTO> entry : recordEntrys.entrySet())
-      {
-         records.add(RecordDTO.instantiate(entry, buildItemDTO()));
-      }
+//      for (String recordId : recordEntrys.keySet())
+//      {
+//         RecordDTO dto = recordEntrys.get(recordId);
+//         RecordDTO.instantiate(id, dto);
+//      }
+//      for (Entry<String, RecordDTO> entry : recordEntrys.entrySet())
+//      {
+//         records.add(RecordDTO.instantiate(entry, buildItemDTO()));
+//      }
 
       return records.get(0);
    }

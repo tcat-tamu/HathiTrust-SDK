@@ -5,11 +5,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import edu.tamu.tcat.hathitrust.model.RightsCode;
-import edu.tamu.tcat.hathitrust.model.RightsCodeRegistrationException;
-import edu.tamu.tcat.hathitrust.model.RightsCodeRegistry;
 import edu.tamu.tcat.hathitrust.plugin.PluginFacade;
 import edu.tamu.tcat.hathitrust.plugin.PluginRegistrationException;
+import edu.tamu.tcat.hathitrust.rights.RightsCode;
+import edu.tamu.tcat.hathitrust.rights.RightsCodeRegistrationException;
+import edu.tamu.tcat.hathitrust.rights.RightsCodeRegistry;
 
 
 public class ExtRightsCodeRegistryService implements RightsCodeRegistry

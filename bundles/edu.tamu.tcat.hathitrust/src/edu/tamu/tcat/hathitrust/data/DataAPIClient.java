@@ -1,4 +1,4 @@
-package edu.tamu.tcat.hathitrust.client;
+package edu.tamu.tcat.hathitrust.data;
 
 public interface DataAPIClient
 {

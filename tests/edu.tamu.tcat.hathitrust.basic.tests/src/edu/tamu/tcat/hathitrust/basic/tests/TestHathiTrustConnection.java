@@ -10,10 +10,10 @@ import org.junit.Test;
 
 import edu.tamu.tcat.hathitrust.basic.oauth.HathiTrustAPICommandBuilder;
 import edu.tamu.tcat.hathitrust.basic.oauth.SimpleParameter;
-import edu.tamu.tcat.hathitrust.client.DataAPIClient;
-import edu.tamu.tcat.hathitrust.client.DataAPIClient.DataFormat;
-import edu.tamu.tcat.hathitrust.client.DataAPIClient.ImageFormat;
 import edu.tamu.tcat.hathitrust.client.v1.basic.DataApiImpl;
+import edu.tamu.tcat.hathitrust.data.DataAPIClient;
+import edu.tamu.tcat.hathitrust.data.DataAPIClient.DataFormat;
+import edu.tamu.tcat.hathitrust.data.DataAPIClient.ImageFormat;
 
 
 public class TestHathiTrustConnection

@@ -1,7 +1,9 @@
-package edu.tamu.tcat.hathitrust.model;
+package edu.tamu.tcat.hathitrust.bibliography;
 
 import java.net.URI;
 import java.time.LocalDate;
+
+import edu.tamu.tcat.hathitrust.rights.RightsCode;
 
 public class BasicItem implements Item
 {

@@ -1,10 +1,10 @@
-package edu.tamu.tcat.hathitrust.client;
+package edu.tamu.tcat.hathitrust.bibliography;
 
 import java.util.Collection;
 import java.util.Set;
 
-import edu.tamu.tcat.hathitrust.model.Record;
-import edu.tamu.tcat.hathitrust.model.Record.RecordIdentifier;
+import edu.tamu.tcat.hathitrust.HathiTrustClientException;
+import edu.tamu.tcat.hathitrust.bibliography.Record.RecordIdentifier;
 
 /**
  *  Interfaces with the HathiTrust Bibliographic API.

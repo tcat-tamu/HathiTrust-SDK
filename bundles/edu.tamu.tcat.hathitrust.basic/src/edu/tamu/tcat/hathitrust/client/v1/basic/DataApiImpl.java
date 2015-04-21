@@ -12,7 +12,7 @@ import org.apache.http.HttpResponse;
 
 import edu.tamu.tcat.hathitrust.basic.oauth.HathiTrustAPICommandBuilder;
 import edu.tamu.tcat.hathitrust.basic.oauth.SimpleParameter;
-import edu.tamu.tcat.hathitrust.client.DataAPIClient;
+import edu.tamu.tcat.hathitrust.data.DataAPIClient;
 
 public class DataApiImpl implements DataAPIClient
 {

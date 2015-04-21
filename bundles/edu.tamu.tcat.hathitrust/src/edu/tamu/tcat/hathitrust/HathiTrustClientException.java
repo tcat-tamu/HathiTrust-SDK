@@ -1,4 +1,4 @@
-package edu.tamu.tcat.hathitrust.client;
+package edu.tamu.tcat.hathitrust;
 
 /**
  *  Indicates an error either accessing or retrieving data from HathiTrust.

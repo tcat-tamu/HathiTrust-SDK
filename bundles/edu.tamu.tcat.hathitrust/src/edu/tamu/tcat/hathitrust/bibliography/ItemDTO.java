@@ -1,8 +1,11 @@
-package edu.tamu.tcat.hathitrust.model;
+package edu.tamu.tcat.hathitrust.bibliography;
 
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import edu.tamu.tcat.hathitrust.rights.RightsCode;
+import edu.tamu.tcat.hathitrust.rights.RightsCodeRegistry;
 
 
 public class ItemDTO

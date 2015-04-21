@@ -1,4 +1,4 @@
-package edu.tamu.tcat.hathitrust.model;
+package edu.tamu.tcat.hathitrust.rights;
 
 /**
  * Indicates an error creating or accessing a right code registration.
