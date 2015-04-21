@@ -3,6 +3,7 @@ package edu.tamu.tcat.hathitrust.model;
 import java.net.URI;
 import java.time.Year;
 import java.util.List;
+import java.util.Set;
 
 /**
  *  A description of a bibliographic entity (a book, serial, etc) as provided by HathiTrust.
@@ -70,6 +71,24 @@ public interface Record
     * @throws IllegalStateException If the marc record cannot be retrieved.
     */
    String getMarcRecordXML() throws IllegalStateException;
+
+   /**
+    * @param id The id of the item to check.
+    * @return {@code true} if the identified item belongs to this record.
+    */
+   boolean hasItem(String id);
+
+   /**
+    * @param id The id of the item to retrieve
+    * @return The requested item.
+    * @throws IllegalArgumentException If the requested item is not a member of this
+    */
+   Item getItem(String id) throws IllegalArgumentException;
+
+   /**
+    * @return The ids of all {@link Item}s associated with this record.
+    */
+   Set<String> getItemIds();
 
    /**
     * @return A list of all {@link Item}s associated with this record.

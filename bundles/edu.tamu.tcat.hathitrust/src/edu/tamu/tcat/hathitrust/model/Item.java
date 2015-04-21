@@ -34,6 +34,7 @@ public interface Item
     */
    String getOriginatingInstitution();
 
+   @Deprecated // TODO move to Client API
    Record getRecord();
 
    /**

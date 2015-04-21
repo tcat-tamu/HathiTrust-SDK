@@ -2,8 +2,10 @@ package edu.tamu.tcat.hathitrust.model;
 
 import java.net.URI;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -85,9 +87,61 @@ public final class BasicRecord implements Record
          return marc.get();
       }
 
+      private List<Item> items;
+      private synchronized void loadItems()
+      {
+         if (items != null)
+            return;
+
+         try
+         {
+            this.items = new ArrayList<>(itemsSupplier.get());
+         }
+         catch (Exception ex)
+         {
+            throw new IllegalStateException("Failed to load items for record [" + this.id + "]", ex);
+         }
+      }
+
       @Override
       public List<Item> getItems()
       {
-         return itemsSupplier.get();
+         loadItems();
+         return Collections.unmodifiableList(items);
+      }
+
+      @Override
+      public boolean hasItem(String itemId)
+      {
+         loadItems();
+         Item item = items.parallelStream()
+              .filter(candidate -> candidate.getItemId().equals(itemId))
+              .findAny()
+              .orElse(null);
+
+         return item != null;
+      }
+
+      @Override
+      public Item getItem(String itemId) throws IllegalArgumentException
+      {
+         loadItems();
+         Item item = items.parallelStream()
+               .filter(candidate -> candidate.getItemId().equals(itemId))
+               .findAny()
+               .orElse(null);
+
+         if (item == null)
+            throw new IllegalArgumentException("The requested item [" + itemId +"] is not associated with this record [" + id + "]");
+         return item;
+      }
+
+      @Override
+      public Set<String> getItemIds()
+      {
+         loadItems();
+         return items.parallelStream()
+                     .map(Item::getItemId)
+                     .collect(Collectors.toSet());
       }
 }
