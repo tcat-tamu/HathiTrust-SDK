@@ -25,54 +25,46 @@ import edu.tamu.tcat.hathitrust.HathiTrustClientException;
 import edu.tamu.tcat.hathitrust.bibliography.BibliographicAPIClient;
 import edu.tamu.tcat.hathitrust.bibliography.Record;
 import edu.tamu.tcat.hathitrust.bibliography.Record.RecordIdentifier;
-import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 
-public class BibAPIClientImpl implements BibliographicAPIClient
+public class BibAPIClientImpl implements BibliographicAPIClient, AutoCloseable
 {
+   // NOTE the parent interface seem unneeded. In general, we'll want to use a specific version
+   //      of the API.
    private static final Logger logger = Logger.getLogger(BibAPIClientImpl.class.getName());
 
    public static final String HATHI_TRUST = "edu.tamu.tcat.hathitrust.api_endpoint";
 
    private DefaultHttpClient client;
    private ObjectMapper mapper;
-   private ConfigurationProperties config;
    private URI apiEndpoint;
 
-   public BibAPIClientImpl()
+   public static BibAPIClientImpl create(String endpoint)
    {
-   }
-
-   public void setConfig(ConfigurationProperties config)
-   {
-      this.config = config;
-   }
-
-   public void activate()
-   {
-      this.mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-      if (config == null)
-         throw new IllegalStateException("Activation failed. Configuration properties not available.");
-
-      String url = config.getPropertyValue(HATHI_TRUST, String.class);
-      if (url == null || url.trim().isEmpty())
-         throw new IllegalStateException("Activation failed. No API endpoint supplied. Expected configuration property for  [" + HATHI_TRUST + "].");
+      BibAPIClientImpl apiClient = new BibAPIClientImpl();
+      apiClient.mapper = new ObjectMapper();
+      apiClient.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
       try
       {
-         apiEndpoint = new URI(url.endsWith("/") ? url : url + "/");
+         apiClient.apiEndpoint = new URI(endpoint.endsWith("/") ? endpoint : endpoint + "/");
       }
       catch (URISyntaxException ex)
       {
-         throw new IllegalStateException("Activation failed. Invalid API endpoint supplied [" + url + "].");
+         throw new IllegalArgumentException("Invalid API endpoint [" + endpoint + "].");
       }
 
       // FIXME this is using the old HttpClient API. Need to use closable variant
-      client = new DefaultHttpClient();
+      apiClient.client = new DefaultHttpClient();
+
+      return apiClient;
    }
 
-   public void dispose()
+   private BibAPIClientImpl()
+   {
+   }
+
+   @Override
+   public void close()
    {
       try
       {
