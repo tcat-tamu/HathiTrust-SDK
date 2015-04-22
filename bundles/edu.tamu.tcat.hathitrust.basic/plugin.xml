@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="edu.tamu.tcat.hathitrust.rightscode">
+      <rights_code
+            code="1"
+            description="public domain"
+            id="pd"
+            title="public domain"
+            type="access"
+            uri="http://schemas.hathitrust.org/htd/2009#pd">
+      </rights_code>
+   </extension>
+
+</plugin>
