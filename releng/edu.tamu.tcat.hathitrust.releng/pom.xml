@@ -48,6 +48,8 @@
     
     <module>oss.hathitrust/bundles/edu.tamu.tcat.hathitrust</module>
     <module>oss.hathitrust/bundles/edu.tamu.tcat.hathitrust.basic</module>
+    
+    <module>oss.hathitrust/tests/edu.tamu.tcat.hathitrust.basic.tests</module>
   </modules>
 
   <repositories>
