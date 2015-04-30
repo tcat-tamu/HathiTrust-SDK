@@ -33,16 +33,30 @@ public class ExtractedFeaturesTests
    
    static class MockExtractedFeaturesProvider implements ExtractedFeaturesProvider
    {
-      private Path root;
+      private static final String TYPE_BASIC = "basic";
+      private static final String TYPE_ADVANCED = "advanced";
+      
+      private final Path root;
       
       public MockExtractedFeaturesProvider(Path root)
       {
          this.root = root;
       }
       
-      @Override
-      public ExtractedFeatures getExtractedFeatures(String htrcVolumeId) throws HathiTrustClientException
+      /**
+       * Given the volume-id, type (currently "basic" or "advanced"), and internal root path,
+       * provide a {@link Path} to the requested .json.bz2 file if it exists.
+       * 
+       * @param htrcVolumeId
+       * @param type
+       * @return The requested path, or {@code null} if the file does not exist.
+       * @throws HathiTrustClientException
+       */
+      private Path getArchivePath(String htrcVolumeId, String type) throws HathiTrustClientException
       {
+         // Volume-id looks like "xxx.123456" and needs to be split into
+         // "xxx", "12", "34", "56", "xxx.123456.basic.json.bz2" parts
+         
          String[] strs = htrcVolumeId.split(Pattern.quote("."));
          String src = strs[0];
          String tail = strs[1];
@@ -53,29 +67,42 @@ public class ExtractedFeaturesTests
             pairs.add(tail.substring(i, i+2));
          }
          
-         Path p = root.resolve("basic").resolve(src).resolve("pairtree_root");
+         Path p = root.resolve(type).resolve(src).resolve("pairtree_root");
          for (String part : pairs)
             p = p.resolve(part);
          
          p = p.resolve(tail);
-         Path file = p.resolve(htrcVolumeId+".basic.json.bz2");
+         Path file = p.resolve(htrcVolumeId+"."+type+".json.bz2");
          if (!Files.exists(file))
-         {
-            throw new IllegalStateException("not exist: " + file);
-         }
+            return null;
          
+         return file;
+      }
+      
+      @Override
+      public ExtractedFeatures getExtractedFeatures(String htrcVolumeId) throws HathiTrustClientException
+      {
+         Path basic = getArchivePath(htrcVolumeId, "basic");
+         Path advanced = getArchivePath(htrcVolumeId, "advanced");
          
-         return new MockExtractedFeatures(htrcVolumeId);
+         return new MockExtractedFeatures(this, htrcVolumeId, basic, advanced);
       }
    }
    
    static class MockExtractedFeatures implements ExtractedFeatures
    {
       private final String vid;
+      private Path basic;
+      private Path advanced;
       
-      public MockExtractedFeatures(String vid)
+      public MockExtractedFeatures(MockExtractedFeaturesProvider parent,
+                                   String vid,
+                                   Path basic,
+                                   Path advanced)
       {
          this.vid = vid;
+         this.basic = basic;
+         this.advanced = advanced;
       }
       
       @Override
