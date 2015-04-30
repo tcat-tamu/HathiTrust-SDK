@@ -9,8 +9,9 @@ import java.util.regex.Pattern;
 
 import org.junit.Test;
 
-import edu.tamu.tcat.hathitrust.features.ExtractedFeatures;
-import edu.tamu.tcat.hathitrust.features.ExtractedFeaturesProvider;
+import edu.tamu.tcat.hathitrust.HathiTrustClientException;
+import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeatures;
+import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeaturesProvider;
 
 public class ExtractedFeaturesTests
 {
@@ -40,7 +41,7 @@ public class ExtractedFeaturesTests
       }
       
       @Override
-      public ExtractedFeatures getExtractedFeatures(String htrcVolumeId)
+      public ExtractedFeatures getExtractedFeatures(String htrcVolumeId) throws HathiTrustClientException
       {
          String[] strs = htrcVolumeId.split(Pattern.quote("."));
          String src = strs[0];
