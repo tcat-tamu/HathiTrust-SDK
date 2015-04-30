@@ -162,5 +162,26 @@ public class ExtractedFeaturesTests
       {
          return vid;
       }
+
+      @Override
+      public Metadata getMetadata()
+      {
+         // TODO Auto-generated method stub
+         return null;
+      }
+
+      @Override
+      public int pageCount()
+      {
+         // TODO Auto-generated method stub
+         return 0;
+      }
+
+      @Override
+      public ExtractedPageFeatures getPage(int page)
+      {
+         // TODO Auto-generated method stub
+         return null;
+      }
    }
 }
