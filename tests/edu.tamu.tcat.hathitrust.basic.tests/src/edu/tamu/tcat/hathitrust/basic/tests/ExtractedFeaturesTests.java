@@ -5,6 +5,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
@@ -18,29 +22,56 @@ public class ExtractedFeaturesTests
    @Test
    public void testFactoryCreate() throws Exception
    {
-      ExtractedFeaturesProvider p = createProvider();
-      try (ExtractedFeatures feat = p.getExtractedFeatures("hvd.ah3d1a"))
+      try (MockExtractedFeaturesProvider mp = createProvider())
       {
-         String vid = feat.getVolumeId();
-         System.out.println("Loaded: " + vid);
+         ExtractedFeaturesProvider p = mp;
+         try (ExtractedFeatures feat = p.getExtractedFeatures("hvd.ah3d1a"))
+         {
+            String vid = feat.getVolumeId();
+            System.out.println("Loaded: " + vid);
+         }
       }
    }
    
-   private static ExtractedFeaturesProvider createProvider()
+   private static MockExtractedFeaturesProvider createProvider()
    {
       return new MockExtractedFeaturesProvider(Paths.get("\\\\citd.tamu.edu\\citdfs\\archive\\HTRC_Dataset\\"));
    }
    
-   static class MockExtractedFeaturesProvider implements ExtractedFeaturesProvider
+   static class MockExtractedFeaturesProvider implements ExtractedFeaturesProvider, AutoCloseable
    {
+      private static final Logger debug = Logger.getLogger(MockExtractedFeaturesProvider.class.getName());
       private static final String TYPE_BASIC = "basic";
       private static final String TYPE_ADVANCED = "advanced";
       
+      private final AtomicBoolean isDisposed = new AtomicBoolean(false);
+      private final ConcurrentHashMap<String, MockExtractedFeatures> cache;
       private final Path root;
       
       public MockExtractedFeaturesProvider(Path root)
       {
          this.root = root;
+         cache = new ConcurrentHashMap<>();
+      }
+      
+      @Override
+      public void close() throws Exception
+      {
+         // prevent any new cache entries from being created
+         isDisposed.set(true);
+         cache.forEachValue(1, ef ->
+         {
+            try {
+               ef.close();
+            } catch (Exception e) {
+               debug.log(Level.SEVERE, "Error disposing ["+ef+"]", e);
+            }
+         });
+         if (!cache.isEmpty())
+         {
+            debug.log(Level.SEVERE, "Provider had "+cache.size()+" dangling cache entries");
+            cache.clear();
+         }
       }
       
       /**
@@ -82,10 +113,25 @@ public class ExtractedFeaturesTests
       @Override
       public ExtractedFeatures getExtractedFeatures(String htrcVolumeId) throws HathiTrustClientException
       {
+         if (isDisposed.get())
+            throw new IllegalStateException("Provider is disposed");
+         
          Path basic = getArchivePath(htrcVolumeId, "basic");
          Path advanced = getArchivePath(htrcVolumeId, "advanced");
          
-         return new MockExtractedFeatures(this, htrcVolumeId, basic, advanced);
+         // These are cheap enough to create and destroy if already in the cache
+         MockExtractedFeatures ef = new MockExtractedFeatures(this, htrcVolumeId, basic, advanced);
+         MockExtractedFeatures old = cache.putIfAbsent(htrcVolumeId, ef);
+         if (old != null)
+         {
+            try {
+               ef.close();
+            } catch (Exception e) {
+               throw new IllegalStateException("Failed closing temp features", e);
+            }
+            return old;
+         }
+         return ef;
       }
    }
    
