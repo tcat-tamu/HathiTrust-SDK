@@ -57,11 +57,11 @@ public interface ExtractedFeatures extends AutoCloseable
    //TODO: Page count better be the same between basic and advanced. If it is not, then need two separate
    //      pageCount accessors and the provided features data vehicle will be inconsistent in the data it pulls.
    //      But then that's the fault of whoever composed the files on disk that they don't match.
-   int pageCount();
+   int pageCount() throws HathiTrustClientException;
    //int pageCountBasic();
    //int pageCountAdvanced();
    
-   ExtractedPageFeatures getPage(int page);
+   ExtractedPageFeatures getPage(int page) throws HathiTrustClientException;
    
    interface ExtractedPageFeatures
    {
@@ -109,7 +109,9 @@ public interface ExtractedFeatures extends AutoCloseable
       
       /**
        * Get the set of unique tokens (typically words) appearing in this
-       * {@link ExtractedPagePartOfSpeechData} used in POS feature extraction.
+       * {@link ExtractedPagePartOfSpeechData} used in POS feature extraction. This set may include
+       * non-word tokens such as punctuation and also treats similar strings with varying capitalization
+       * as distinct tokens.
        */
       Set<String> tokens() throws HathiTrustClientException;
       
@@ -128,6 +130,7 @@ public interface ExtractedFeatures extends AutoCloseable
       
       /**
        * Get the count of uses of the given token on the page. This count ignores part of speech and
+       * capitalization and
        * effectively sums the occurrences of any part of speech for the same token.
        * 
        * @param token

@@ -5,9 +5,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,6 +45,18 @@ public class ExtractedFeaturesTests
             System.out.println("Loaded: " + vid);
             
             System.out.println("Title: " + feat.getMetadata().title());
+            
+            ExtractedFeatures.ExtractedPageFeatures page = feat.getPage(48);
+            ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData = page.getBodyData();
+            Set<String> toks = bodyData.tokens();
+            toks.stream().sorted().forEach(tok ->
+            {
+               try {
+                  System.out.println(tok + ": " + bodyData.getCount(tok));
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
+            });
          }
       }
    }
@@ -68,6 +83,12 @@ public class ExtractedFeaturesTests
          this.root = root;
          cache = new ConcurrentHashMap<>();
          exec = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("mock ext feat %1$d").build());
+      }
+      
+      @Override
+      public String toString()
+      {
+         return "provider["+root+"]";
       }
       
       @Override
@@ -187,6 +208,18 @@ public class ExtractedFeaturesTests
          this.advanced = advanced;
       }
       
+      @Override
+      public String toString()
+      {
+         return "ex feat["+vid+" of "+parent+"]";
+      }
+      
+      /**
+       * Load the basic and advanced data from disk archive in the given executor.
+       * 
+       * @param exec
+       */
+      //TODO: this could be done less agressively to not load basic/advanced if not needed
       public void load(ExecutorService exec)
       {
          if (basic != null)
@@ -232,6 +265,9 @@ public class ExtractedFeaturesTests
          }
       }
       
+      /**
+       * Get the "basic" JSON data vehicle. Does not return {@code null}
+       */
       private Map<String, ?> getBasic() throws Exception
       {
          if (basicData == null)
@@ -242,6 +278,9 @@ public class ExtractedFeaturesTests
          return data;
       }
 
+      /**
+       * Get the "advanced" JSON data vehicle. Does not return {@code null}
+       */
       private Map<String, ?> getAdvanced() throws Exception
       {
          if (advancedData == null)
@@ -304,17 +343,261 @@ public class ExtractedFeaturesTests
       }
 
       @Override
-      public int pageCount()
+      public int pageCount() throws HathiTrustClientException
       {
-         // TODO Auto-generated method stub
-         return 0;
+         try
+         {
+            Number v = getMetaValue("pageCount", Number.class);
+            if (v == null)
+               throw new IllegalStateException("Missing value 'pageCount'");
+            
+            return v.intValue();
+         }
+         catch (Exception e)
+         {
+            throw new HathiTrustClientException("Failed accessing metadata [pageCount] on ["+vid+"]", e);
+         }
       }
 
       @Override
       public ExtractedPageFeatures getPage(int page)
       {
-         // TODO Auto-generated method stub
-         return null;
+         return new MockPage(this, page);
+      }
+   }
+   
+   private static class MockPage implements ExtractedFeatures.ExtractedPageFeatures
+   {
+      private final MockExtractedFeatures parent;
+      private final int index;
+      
+      // cache basic/advanced data to improve performance of repeated access, such as for token POS counts
+      //@GuardedBy("this")
+      private Map<String, ?> pageDataBasic;
+      //@GuardedBy("this")
+      private Map<String, ?> pageDataAdvanced;
+      
+      public MockPage(MockExtractedFeatures parent, int index)
+      {
+         this.index = index;
+         this.parent = Objects.requireNonNull(parent);
+      }
+      
+      @Override
+      public String toString()
+      {
+         return "page["+index+" of "+parent+"]";
+      }
+
+      @Override
+      public ExtractedFeatures getVolume()
+      {
+         return parent;
+      }
+      
+      private synchronized Map<String, ?> loadPageBasicData() throws Exception
+      {
+         if (pageDataBasic == null)
+         {
+            Map<String, ?> data = parent.getBasic();
+            Map<String, ?> features = (Map)data.get("features");
+            if (features == null)
+               throw new IllegalStateException("Basic data missing 'features' element");
+            List<?> pages = (List<?>)features.get("pages");
+            if (pages == null)
+               throw new IllegalStateException("Basic data missing 'features.pages' element");
+            pageDataBasic = (Map)pages.get(index);
+         }
+         
+         return pageDataBasic;
+      }
+
+      private synchronized Map<String, ?> loadPageAdvancedData() throws Exception
+      {
+         if (pageDataAdvanced == null)
+         {
+            Map<String, ?> data = parent.getAdvanced();
+            Map<String, ?> features = (Map)data.get("features");
+            if (features == null)
+               throw new IllegalStateException("Advanced data missing 'features' element");
+            List<?> pages = (List<?>)features.get("pages");
+            if (pages == null)
+               throw new IllegalStateException("Advanced data missing 'features.pages' element");
+            pageDataAdvanced = (Map)pages.get(index);
+         }
+         return pageDataAdvanced;
+      }
+      
+      @Override
+      public String seq() throws HathiTrustClientException
+      {
+         try
+         {
+            return (String)loadPageBasicData().get("seq");
+         }
+         catch (Exception e)
+         {
+            throw new HathiTrustClientException("Failed accessing data [seq] on ["+this+"]", e);
+         }
+      }
+
+      @Override
+      public String dateCreated() throws HathiTrustClientException
+      {
+         try
+         {
+            return (String)loadPageBasicData().get("dateCreated");
+         }
+         catch (Exception e)
+         {
+            throw new HathiTrustClientException("Failed accessing data [dateCreated] on ["+this+"]", e);
+         }
+      }
+
+      @Override
+      public int tokenCount() throws HathiTrustClientException
+      {
+         try
+         {
+            Number v = (Number)loadPageBasicData().get("tokenCount");
+            return v.intValue();
+         }
+         catch (Exception e)
+         {
+            throw new HathiTrustClientException("Failed accessing data [tokenCount] on ["+this+"]", e);
+         }
+      }
+
+      @Override
+      public int lineCount() throws HathiTrustClientException
+      {
+         try
+         {
+            Number v = (Number)loadPageBasicData().get("lineCount");
+            return v.intValue();
+         }
+         catch (Exception e)
+         {
+            throw new HathiTrustClientException("Failed accessing data [lineCount] on ["+this+"]", e);
+         }
+      }
+
+      @Override
+      public ExtractedFeatures.ExtractedPagePartOfSpeechData getBodyData() throws HathiTrustClientException
+      {
+         return new MockPOS(this, "body");
+      }
+   }
+   
+   private static class MockPOS implements ExtractedFeatures.ExtractedPagePartOfSpeechData
+   {
+      private final MockPage parent;
+      private final String section;
+
+      public MockPOS(MockPage parent, String section)
+      {
+         this.parent = Objects.requireNonNull(parent);
+         this.section = Objects.requireNonNull(section);
+      }
+      
+      @Override
+      public String toString()
+      {
+         return "part of speech ["+section+" on "+parent+"]";
+      }
+
+      @Override
+      public ExtractedFeatures.ExtractedPageFeatures getPage()
+      {
+         return parent;
+      }
+
+      @Override
+      public boolean isBody()
+      {
+         return section.equals("body");
+      }
+
+      @Override
+      public boolean isHeader()
+      {
+         return section.equals("header");
+      }
+
+      @Override
+      public boolean isFooter()
+      {
+         return section.equals("footer");
+      }
+
+      @Override
+      public Set<String> tokens() throws HathiTrustClientException
+      {
+         try
+         {
+            Map<String, ?> secData = (Map)parent.loadPageBasicData().get(section);
+            if (secData == null)
+               throw new IllegalStateException("Section ["+section+"] has no basic data");
+            
+            Map<String, ?> tokensData = (Map)secData.get("tokenPosCount");
+            if (tokensData == null)
+               throw new IllegalStateException("Section ["+section+"] has no basic 'tokenPosCount' data");
+               
+            return Collections.unmodifiableSet(tokensData.keySet());
+         }
+         catch (Exception e)
+         {
+            throw new HathiTrustClientException("Failed accessing token data on ["+this+"]", e);
+         }
+      }
+
+      @Override
+      public Map<String, Integer> getPosCount(String token) throws HathiTrustClientException
+      {
+         try
+         {
+            Map<String, ?> secData = (Map)parent.loadPageBasicData().get(section);
+            if (secData == null)
+               throw new IllegalStateException("Section ["+section+"] has no basic data");
+            
+            Map<String, ?> tokensData = (Map)secData.get("tokenPosCount");
+            if (tokensData == null)
+               throw new IllegalStateException("Section ["+section+"] has no basic 'tokenPosCount' data");
+               
+            // This map is typically of size=1
+            Map<String, ?> tokData = (Map)tokensData.get(token);
+            
+            // Asked for invalid token
+            if (tokData == null)
+               return Collections.emptyMap();
+            
+            Map<String, Integer> rv = new HashMap<>();
+            
+            for (Map.Entry<String, ?> entry : tokData.entrySet())
+            {
+               Number n = (Number)entry.getValue();
+               Integer v = null;
+               if (n instanceof Integer)
+                  v = (Integer)n;
+               else
+                  v = Integer.valueOf(n.intValue());
+               rv.put(entry.getKey(), v);
+            }
+            
+            return rv;
+         }
+         catch (Exception e)
+         {
+            throw new HathiTrustClientException("Failed accessing token data on ["+this+"]", e);
+         }
+      }
+
+      @Override
+      public int getCount(String token) throws HathiTrustClientException
+      {
+         // sum counts of all parts of speech for the given token
+         int count = getPosCount(token).values().stream().mapToInt(Integer::intValue).sum();
+         return count;
       }
    }
 }
