@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +40,8 @@ public class ExtractedFeaturesTests
          {
             String vid = feat.getVolumeId();
             System.out.println("Loaded: " + vid);
+            
+            System.out.println("Title: " + feat.getMetadata().title());
          }
       }
    }
@@ -161,7 +164,7 @@ public class ExtractedFeaturesTests
       }
    }
    
-   static class MockExtractedFeatures implements ExtractedFeatures
+   static class MockExtractedFeatures implements ExtractedFeatures, ExtractedFeatures.Metadata
    {
       private static final Logger debug = Logger.getLogger(MockExtractedFeatures.class.getName());
       
@@ -186,41 +189,69 @@ public class ExtractedFeaturesTests
       
       public void load(ExecutorService exec)
       {
-         basicData = exec.submit(() ->
+         if (basic != null)
+            basicData = exec.submit(() -> doLoad(basic, ExtractedFeatures.schemaVersionBasic));
+         if (advanced != null)
+            advancedData = exec.submit(() -> doLoad(advanced, ExtractedFeatures.schemaVersionAdvanced));
+         
+         if (basicData == null && advancedData == null)
+            debug.log(Level.WARNING, "No basic or advanced data provided for volume ["+vid+"]");
+      }
+      
+      private Map<String, ?> doLoad(Path p, String ver) throws Exception
+      {
+         try
          {
-            try
+            Map<?,?> value = null;
+            // open basic path as a bz2 and use Jackson to parse into raw data vehicles
+            try (InputStream str = Files.newInputStream(p);
+                 BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(str))
             {
-               Map<?,?> value = null;
-               try (InputStream str = Files.newInputStream(basic);
-                    BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(str))
-               {
-                  ObjectMapper mapper = new ObjectMapper();
-                  value = mapper.readValue(bzIn, Map.class);
-               }
-               
-               Map<String, ?> data = (Map)value;
-               Map<String, ?> features = (Map)data.get("features");
-               if (features == null)
-                  throw new HathiTrustClientException("Basic data missing element 'features'");
-                  
-               Object sv = features.get("schemaVersion");
-               if (!Objects.equals(sv, ExtractedFeatures.schemaVersionBasic))
-                  throw new HathiTrustClientException("Unexpected schema version ["+sv+"] expecting ["+ExtractedFeatures.schemaVersionBasic+"]");
-               
-               return data;
-               
-               // open basic path as a bz2
-               // use Jackson to parse into raw data vehicles
-               // validate schema
+               ObjectMapper mapper = new ObjectMapper();
+               value = mapper.readValue(bzIn, Map.class);
             }
-            catch (Exception e)
-            {
-               debug.log(Level.SEVERE, "Failed loading ["+vid+"]", e);
-               throw e;
-            }
-         });
+            
+            Map<String, ?> data = (Map)value;
+            
+            // validate schema
+            Map<String, ?> features = (Map)data.get("features");
+            if (features == null)
+               throw new HathiTrustClientException("Data missing element 'features'");
+               
+            Object sv = features.get("schemaVersion");
+            if (!Objects.equals(sv, ver))
+               throw new HathiTrustClientException("Unexpected schema version ["+sv+"] expecting ["+ver+"]");
+            
+            // Return entire validated data vehicle in raw format
+            return data;
+         }
+         catch (Exception e)
+         {
+            debug.log(Level.SEVERE, "Failed loading ["+vid+"]", e);
+            throw e;
+         }
+      }
+      
+      private Map<String, ?> getBasic() throws Exception
+      {
+         if (basicData == null)
+            throw new IllegalStateException("No basic data available");
+         
+         // Don't allow unbounded 'get'; could be configurable
+         Map<String, ?> data = basicData.get(10, TimeUnit.SECONDS);
+         return data;
       }
 
+      private Map<String, ?> getAdvanced() throws Exception
+      {
+         if (advancedData == null)
+            throw new IllegalStateException("No advanced data available");
+         
+         // Don't allow unbounded 'get'; could be configurable
+         Map<String, ?> data = advancedData.get(10, TimeUnit.SECONDS);
+         return data;
+      }
+      
       @Override
       public void close() throws Exception
       {
@@ -236,8 +267,40 @@ public class ExtractedFeaturesTests
       @Override
       public Metadata getMetadata()
       {
-         // TODO Auto-generated method stub
-         return null;
+         //HACK: simpler impl has singleton the same as this instance
+         return this;
+      }
+      
+      @Override
+      public ExtractedFeatures getVolume()
+      {
+         return this;
+      }
+      
+      @Override
+      public String title() throws HathiTrustClientException
+      {
+         try
+         {
+            return getMetaValue("title", String.class);
+         }
+         catch (Exception e)
+         {
+            throw new HathiTrustClientException("Failed accessing metadata [title] on ["+vid+"]", e);
+         }
+      }
+      
+      private <T> T getMetaValue(String key, Class<T> type) throws Exception
+      {
+         Map<String, ?> map = null;
+         if (basicData != null)
+            map = getBasic();
+         else
+            map = getAdvanced();
+         
+         Map<String, ?> meta = (Map)map.get("metadata");
+         Object v = meta.get(key);
+         return (T)v;
       }
 
       @Override
