@@ -3,6 +3,8 @@ package edu.tamu.tcat.hathitrust.htrc.features.simple;
 import java.util.Map;
 import java.util.Set;
 
+import edu.tamu.tcat.hathitrust.HathiTrustClientException;
+
 /**
  * The main abstraction for dealing with HTRC Extracted Feature data for a single volume.
  * This is a part of
@@ -48,7 +50,7 @@ public interface ExtractedFeatures extends AutoCloseable
        */
       ExtractedFeatures getVolume();
       
-      String title();
+      String title() throws HathiTrustClientException;
       //TODO: add others
    }
    
@@ -68,22 +70,22 @@ public interface ExtractedFeatures extends AutoCloseable
        */
       ExtractedFeatures getVolume();
       
-      String seq();
+      String seq() throws HathiTrustClientException;
       
       //TODO: can this be assumed to be the same for both basic and advanced?
-      String dateCreated();
+      String dateCreated() throws HathiTrustClientException;
       //String dateCreatedBasic();
       //String dateCreatedAdvanced();
       
-      int tokenCount();
-      int lineCount();
+      int tokenCount() throws HathiTrustClientException;
+      int lineCount() throws HathiTrustClientException;
       
       //TODO: add language API
       //Map<String, Number> languages();
       
       //TODO: add header API
       //ExtractedPagePartOfSpeechData getHeaderData();
-      ExtractedPagePartOfSpeechData getBodyData();
+      ExtractedPagePartOfSpeechData getBodyData() throws HathiTrustClientException;
       //TODO: add footer API
       //ExtractedPagePartOfSpeechData getFooterData();
    }
@@ -109,7 +111,7 @@ public interface ExtractedFeatures extends AutoCloseable
        * Get the set of unique tokens (typically words) appearing in this
        * {@link ExtractedPagePartOfSpeechData} used in POS feature extraction.
        */
-      Set<String> tokens();
+      Set<String> tokens() throws HathiTrustClientException;
       
       /**
        * Get the part-of-speech codes and counts per code for the given token. Since each token may appear
@@ -122,7 +124,7 @@ public interface ExtractedFeatures extends AutoCloseable
        * @return A map from part-of-speech-code to count, or an empty map if the token has no POS data.
        *         Does not return {@code null}.
        */
-      Map<String, Integer> getPosCount(String token);
+      Map<String, Integer> getPosCount(String token) throws HathiTrustClientException;
       
       /**
        * Get the count of uses of the given token on the page. This count ignores part of speech and
@@ -131,7 +133,7 @@ public interface ExtractedFeatures extends AutoCloseable
        * @param token
        * @return The number of times the token appeared in the data. May be zero.
        */
-      int getCount(String token);
+      int getCount(String token) throws HathiTrustClientException;
    }
 }
 
