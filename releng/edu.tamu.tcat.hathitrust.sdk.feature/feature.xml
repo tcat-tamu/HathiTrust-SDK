@@ -61,4 +61,18 @@ limitations under the License.
          version="1.0.0.qualifier"
          unpack="false"/>
 
+   <plugin
+         id="edu.tamu.tcat.pairtree"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="edu.tamu.tcat.pairtree.source"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
 </feature>
