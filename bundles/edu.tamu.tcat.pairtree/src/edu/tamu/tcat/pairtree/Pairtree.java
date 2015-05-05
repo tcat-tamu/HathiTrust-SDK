@@ -1,15 +1,15 @@
 package edu.tamu.tcat.pairtree;
 
-/* This has been subtantially revised from the Library of Congress implementation, 
+/* This has been subtantially revised from the Library of Congress implementation,
  * originally retrieved from https://github.com/LibraryOfCongress/pairtree/blob/master/src/main/java/gov/loc/repository/pairtree/Pairtree.java
  * on 2015-03-25.
  * 
- * Original version is a work of the United States Government and is not subject to copyright 
+ * Original version is a work of the United States Government and is not subject to copyright
  * protection in the United States.
  * 
  * Revisions are Copyright Texas A&M Engineering Experiment Station, 2015
  * Released under the terms of Apache 2.0
- */  
+ */
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
@@ -24,58 +24,58 @@ import java.util.Objects;
  * 
  * <p>
  * The pairtree algorithm maps an arbitrary UTF-8 encoded identifier string into a filesystem
- * directory path based on successive pairs of characters, and also defines the reverse 
+ * directory path based on successive pairs of characters, and also defines the reverse
  * mapping (from pathname to identifier).
  * 
  * <p>
- * The mapping from identifier string to path has two parts. First, the string is cleaned 
- * by converting characters that would be illegal or especially problemmatic in Unix or 
- * Windows filesystems. The cleaned string is then split into pairs of characters, each of 
- * which becomes a directory name in a filesystem path: successive pairs map to successive 
- * path components until there are no characters left, with the last component being either a 
+ * The mapping from identifier string to path has two parts. First, the string is cleaned
+ * by converting characters that would be illegal or especially problemmatic in Unix or
+ * Windows filesystems. The cleaned string is then split into pairs of characters, each of
+ * which becomes a directory name in a filesystem path: successive pairs map to successive
+ * path components until there are no characters left, with the last component being either a
  * 1- or 2-character directory name. The resulting path is known as a pairpath, or ppath
  * 
  * @see https://confluence.ucop.edu/download/attachments/14254128/PairtreeSpec.pdf
  * @see https://confluence.ucop.edu/display/Curation/PairTree
- *  
+ * 
  *
  */
-public class Pairtree 
+public class Pairtree
 {
    public static final String HEX_INDICATOR = "^";
 
    private static final int DEFAULT_LENGTH = 2;
    
-   private Character separator = File.separatorChar;
+   private char separator = File.separatorChar;
    
    private int shortyLength = 2;
    
 //   public int getShortyLength() {
 //      return this.shortyLength;
 //   }
-//   
+//
 //   public void setShortyLength(int length) {
 //      this.shortyLength = length;
 //   }
-//   
+//
 //   public Character getSeparator() {
 //      return separator;
 //   }
-//   
+//
 //   public void setSeparator(Character separator) {
 //      this.separator = separator;
 //   }
-//   
+//
 
    /**
-    * Converts an identifier into a relative {@link Path} as described in the Pairtree spec 
+    * Converts an identifier into a relative {@link Path} as described in the Pairtree spec
     * with each path segment being two characters long. Returns the same result as calling
     * {@code mapToPPath(id, 2)}.
     * 
     * @param id The id to be converted to a pairtree path.
     * 
     * @return A relative {@link Path} for the corresponding id.
-    * @see #mapToPPath(String) 
+    * @see #mapToPPath(String)
     */
    public static Path mapToPPath(String id)
    {
@@ -86,13 +86,13 @@ public class Pairtree
     * Converts an identifier into a relative {@link Path} as described in the Pairtree spec.
     * 
     * @param id The id to be converted to a pairtree path. Must not be {@code null}.
-    * @param length The length of path segments. Must be greater than 0. By convention, the 
-    *      path segment length is 2, but this may be adjusted as needed by the needs of the 
+    * @param length The length of path segments. Must be greater than 0. By convention, the
+    *      path segment length is 2, but this may be adjusted as needed by the needs of the
     *      application
     * @return A relative {@link Path} for the corresponding id.
-    * @see #mapToPPath(String) 
+    * @see #mapToPPath(String)
     */
-   public static Path mapToPPath(String id, int length) 
+   public static Path mapToPPath(String id, int length)
    {
       if (id == null || id.trim().isEmpty())
          throw new IllegalArgumentException("Supplied id must not be null.");
@@ -104,21 +104,21 @@ public class Pairtree
       Path p = null;
       int start = 0;
       int sz = cleanId.length();
-      while (start < sz) 
+      while (start < sz)
       {
          int end = Math.min(start + length, sz);
          String part = cleanId.substring(start, end);
          p = (p == null) ? Paths.get(part) : p.resolve(part);
          
-         start = end;         
+         start = end;
       }
       
       return p;
    }
    
    /**
-    * Convenience method to convert some string based identifier to a filesystem path with a 
-    * supplied prefix (root path) and encapsulating directory to store objects related to the 
+    * Convenience method to convert some string based identifier to a filesystem path with a
+    * supplied prefix (root path) and encapsulating directory to store objects related to the
     * supplied id.
     * 
     * @param basePath
@@ -127,7 +127,7 @@ public class Pairtree
     * @return
     */
 //   public static String mapToPPath(String basePath, String id, String encapsulatingDirName) {
-//      // TODO evaluate if needed. Seems like boilerplate that should be supplied by client 
+//      // TODO evaluate if needed. Seems like boilerplate that should be supplied by client
 //      //      (NOTE, base path should be a path not a string)
 //      return concat(basePath, mapToPPath(id), encapsulatingDirName).toString();
 //   }
@@ -143,7 +143,7 @@ public class Pairtree
     * @return
     * @throws InvalidPpathException
     */
-   public String mapToId(String ppath) throws InvalidPpathException 
+   public String mapToId(String ppath) throws InvalidPpathException
    {
       String id = ppath;
       if (id.endsWith(Character.toString(this.separator))) {
@@ -158,7 +158,7 @@ public class Pairtree
       return id;
    }
    
-//   public String mapToId(Path ppath) throws InvalidPpathException 
+//   public String mapToId(Path ppath) throws InvalidPpathException
 //   {
 //      String id = ppath;
 //      if (id.endsWith(Character.toString(this.separator))) {
@@ -169,7 +169,7 @@ public class Pairtree
 //         id = id.substring(0, id.length() - encapsulatingDir.length());
 //      }
 //      id = id.replace(Character.toString(this.separator), "");
-//      
+//
 //      id = this.uncleanId(id);
 //      return id;
 //   }
@@ -199,7 +199,7 @@ public class Pairtree
 
       //All parts up to next to last and last should have shorty length
       for(int i=0; i < ppathParts.length-2; i++) {
-         if (ppathParts[i].length() != this.shortyLength) throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) has parts of incorrect length", ppath));       
+         if (ppathParts[i].length() != this.shortyLength) throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) has parts of incorrect length", ppath));
       }
       String nextToLastPart = ppathParts[ppathParts.length-2];
       String lastPart = ppathParts[ppathParts.length-1];
@@ -223,16 +223,16 @@ public class Pairtree
                
    }
    
-//   private static Path concat(String... paths) { 
-//      if (paths == null || paths.length == 0) 
+//   private static Path concat(String... paths) {
+//      if (paths == null || paths.length == 0)
 //         throw new IllegalArgumentException("Invalid path sequence. Must supply a non-empty array of path segments.");
-//      
+//
 //      Path path = Paths.get(paths[0]);
 //      for (int i = 1; i < paths.length; i++)
 //      {
 //         path = path.resolve(paths[i]);
 //      }
-//      
+//
 //      return path;
 //   }
    
@@ -266,8 +266,8 @@ public class Pairtree
          if (i < 0x21 || i > 0x7e || chars.contains(Integer.valueOf(i)))
          {
             idBuf.append(HEX_INDICATOR).append(Integer.toHexString(i));
-         } 
-         else 
+         }
+         else
          {
             char[] chars = Character.toChars(i);
             if (chars.length != 1)
@@ -299,7 +299,7 @@ public class Pairtree
             String hex = id.substring(c+1, c+3);
             char[] chars = Character.toChars(Integer.parseInt(hex, 16));
             assert chars.length == 1; // TODO throw
-            idBuf.append(chars[0]);          
+            idBuf.append(chars[0]);
             c=c+2;
          } else {
             idBuf.append(ch);
@@ -309,7 +309,7 @@ public class Pairtree
       return idBuf.toString();
    }
    
-   public static class InvalidPpathException extends Exception 
+   public static class InvalidPpathException extends Exception
    {
       private static final long serialVersionUID = 1L;
 
