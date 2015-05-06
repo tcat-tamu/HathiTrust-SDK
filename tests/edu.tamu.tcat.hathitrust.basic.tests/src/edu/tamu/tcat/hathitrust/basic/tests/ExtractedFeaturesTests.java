@@ -1,6 +1,8 @@
 package edu.tamu.tcat.hathitrust.basic.tests;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,11 +19,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.regex.Pattern;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,24 +40,41 @@ import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeaturesProvider;
 
 public class ExtractedFeaturesTests
 {
-   @Test
-   public void testFactory() throws Exception
+   @BeforeClass
+   public static void log()
    {
+      ConsoleHandler ch = new ConsoleHandler();
+      ch.setFormatter(new SimpleFormatter());
+      ch.setLevel(Level.ALL);
+      Logger.getLogger("").addHandler(ch);
+      
+      Logger.getLogger(MockExtractedFeaturesProvider.class.getPackage().getName()).setLevel(Level.ALL);
+   }
+   
+   @Test
+   @Ignore
+   public void testGrab() throws Exception
+   {
+      String file = "res/volume_ids.txt";
+      List<String> ids = new ArrayList<>();
+      try (BufferedReader reader = Files.newBufferedReader(Paths.get(file)))
+      {
+         String s;
+         while ((s = reader.readLine()) != null)
+         {
+            s = s.trim();
+            if (s.isEmpty())
+               continue;
+            ids.add(s);
+         }
+      }
+      
       try (MockExtractedFeaturesProvider mp = createProvider())
       {
          ExtractedFeaturesProvider p = mp;
-         try (ExtractedFeatures feat = p.getExtractedFeatures("hvd.ah3d1a"))
+         for (String id : ids)
          {
-            String vid = feat.getVolumeId();
-            System.out.println("Loaded: " + vid);
-            
-            System.out.println("Title: " + feat.getMetadata().title());
-            
-            ExtractedFeatures.ExtractedPageFeatures page = feat.getPage(48);
-            ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData = page.getBodyData();
-            Set<String> toks = bodyData.tokens();
-            toks.stream().sorted().forEach(tok ->
-            {
+            doTokens(id, p, (tok, bodyData) -> {
                try {
                   System.out.println(tok + ": " + bodyData.getCount(tok));
                } catch (Exception e) {
@@ -58,6 +82,41 @@ public class ExtractedFeaturesTests
                }
             });
          }
+      }
+   }
+   
+   private void doTokens(String id, ExtractedFeaturesProvider p, BiConsumer<String, ExtractedFeatures.ExtractedPagePartOfSpeechData> f) throws Exception
+   {
+      try (ExtractedFeatures feat = p.getExtractedFeatures(id))
+      {
+         String vid = feat.getVolumeId();
+         System.out.println("Loaded: " + vid);
+         
+         System.out.println("Title: " + feat.getMetadata().title());
+         
+         ExtractedFeatures.ExtractedPageFeatures page = feat.getPage(48);
+         ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData = page.getBodyData();
+         Set<String> toks = bodyData.tokens();
+         toks.stream().sorted().forEach(tok ->
+         {
+            f.accept(tok, bodyData);
+         });
+      }
+   }
+   
+   @Test
+   @Ignore
+   public void testFactory() throws Exception
+   {
+      try (MockExtractedFeaturesProvider mp = createProvider())
+      {
+         doTokens("hvd.ah3d1a", mp, (tok, bodyData) -> {
+            try {
+               System.out.println(tok + ": " + bodyData.getCount(tok));
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+         });
       }
    }
    
@@ -94,6 +153,7 @@ public class ExtractedFeaturesTests
       @Override
       public void close() throws Exception
       {
+         debug.fine("Closing provider");
          // prevent any new cache entries from being created
          isDisposed.set(true);
          
@@ -235,6 +295,7 @@ public class ExtractedFeaturesTests
       {
          try
          {
+            debug.fine("loading " + p);
             Map<?,?> value = null;
             // open basic path as a bz2 and use Jackson to parse into raw data vehicles
             try (InputStream str = Files.newInputStream(p);
@@ -258,9 +319,14 @@ public class ExtractedFeaturesTests
             // Return entire validated data vehicle in raw format
             return data;
          }
+         catch (ClosedByInterruptException ie)
+         {
+            debug.log(Level.FINE, "Failed loading (due to interrupt) "+p+" "+ver+" ["+vid+"]");
+            throw ie;
+         }
          catch (Exception e)
          {
-            debug.log(Level.SEVERE, "Failed loading ["+vid+"]", e);
+            debug.log(Level.SEVERE, "Failed loading "+p+" "+ver+" ["+vid+"]", e);
             throw e;
          }
       }
@@ -274,7 +340,7 @@ public class ExtractedFeaturesTests
             throw new IllegalStateException("No basic data available");
          
          // Don't allow unbounded 'get'; could be configurable
-         Map<String, ?> data = basicData.get(10, TimeUnit.SECONDS);
+         Map<String, ?> data = basicData.get(10, TimeUnit.MINUTES);
          return data;
       }
 
@@ -287,7 +353,7 @@ public class ExtractedFeaturesTests
             throw new IllegalStateException("No advanced data available");
          
          // Don't allow unbounded 'get'; could be configurable
-         Map<String, ?> data = advancedData.get(10, TimeUnit.SECONDS);
+         Map<String, ?> data = advancedData.get(10, TimeUnit.MINUTES);
          return data;
       }
       
