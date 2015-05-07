@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -28,15 +29,20 @@ public class ExtractedFeaturesTests
    private static final String FILES_PATH_ROOT = "\\\\citd.tamu.edu\\citdfs\\archive\\HTRC_Dataset\\";
    private static final String FILE_VOL_IDS = "res/volume_ids.txt";
    
-   private static ConsoleHandler ch = new ConsoleHandler();
+   private static final ConsoleHandler ch = new ConsoleHandler();
    
    @BeforeClass
    public static void log()
    {
+      // Use empty string to properly get the "global" logger
+      Logger root = Logger.getLogger("");
+      // flush all existing handlers
+      Arrays.asList(root.getHandlers()).forEach(h -> root.removeHandler(h));
+      
+      // Add our custom console handler
       ch.setFormatter(new SimpleFormatter());
       ch.setLevel(Level.ALL);
-      // Use empty string to properly get the "global" logger
-      Logger.getLogger("").addHandler(ch);
+      root.addHandler(ch);
       
       // Enable loggers for this test case
       Logger.getLogger(ExtractedFeaturesTests.class.getName()).setLevel(Level.ALL);
