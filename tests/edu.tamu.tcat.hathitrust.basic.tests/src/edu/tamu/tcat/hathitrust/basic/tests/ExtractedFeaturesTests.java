@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,20 +23,33 @@ import edu.tamu.tcat.hathitrust.htrc.features.simple.impl.DefaultExtractedFeatur
 
 public class ExtractedFeaturesTests
 {
+   private static final Logger debug = Logger.getLogger(ExtractedFeaturesTests.class.getName());
+   
    private static final String FILES_PATH_ROOT = "\\\\citd.tamu.edu\\citdfs\\archive\\HTRC_Dataset\\";
    private static final String FILE_VOL_IDS = "res/volume_ids.txt";
+   
+   private static ConsoleHandler ch = new ConsoleHandler();
    
    @BeforeClass
    public static void log()
    {
-      ConsoleHandler ch = new ConsoleHandler();
       ch.setFormatter(new SimpleFormatter());
       ch.setLevel(Level.ALL);
       // Use empty string to properly get the "global" logger
       Logger.getLogger("").addHandler(ch);
       
-      // Enable all loggers in the package for these test cases
+      // Enable loggers for this test case
+      Logger.getLogger(ExtractedFeaturesTests.class.getName()).setLevel(Level.ALL);
+      // Enable all loggers in the impl package for these test cases
       Logger.getLogger(DefaultExtractedFeaturesProvider.class.getPackage().getName()).setLevel(Level.ALL);
+   }
+   
+   @AfterClass
+   public static void endLog()
+   {
+      Logger.getLogger("").removeHandler(ch);
+      Logger.getLogger(ExtractedFeaturesTests.class.getName()).setLevel(Level.OFF);
+      Logger.getLogger(DefaultExtractedFeaturesProvider.class.getPackage().getName()).setLevel(Level.OFF);
    }
    
    @Test
@@ -62,9 +76,9 @@ public class ExtractedFeaturesTests
          {
             doTokens(id, p, (pkg) -> {
                try {
-                  System.out.println(pkg.token + ": " + pkg.bodyData.getCount(pkg.token));
+                  debug.info(pkg.token + ": " + pkg.bodyData.getCount(pkg.token));
                } catch (Exception e) {
-                  e.printStackTrace();
+                  debug.log(Level.SEVERE, "Error", e);
                }
             });
          }
@@ -87,14 +101,15 @@ public class ExtractedFeaturesTests
       }
    }
    
-   private void doTokens(String id, ExtractedFeaturesProvider p, Consumer<Pkg> f) throws Exception
+   private void doTokens(String id, Integer pageNumber, ExtractedFeaturesProvider p, Consumer<Pkg> f) throws Exception
    {
       try (ExtractedFeatures feat = p.getExtractedFeatures(id))
       {
          String vid = feat.getVolumeId();
-         System.out.println("Loaded: " + vid);
          
-         System.out.println("Title: " + feat.getMetadata().title());
+         debug.info("Processing: " + vid);
+         
+         debug.info("Title: " + feat.getMetadata().title());
          
          ExtractedFeatures.ExtractedPageFeatures page = feat.getPage(48);
          ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData = page.getBodyData();
@@ -115,9 +130,9 @@ public class ExtractedFeaturesTests
       {
          doTokens(TEST_FILE, mp, pkg -> {
             try {
-               System.out.println(pkg.token + ": " + pkg.bodyData.getCount(pkg.token));
+               debug.info(pkg.token + ": " + pkg.bodyData.getCount(pkg.token));
             } catch (Exception e) {
-               e.printStackTrace();
+               debug.log(Level.SEVERE, "Error", e);
             }
          });
       }
