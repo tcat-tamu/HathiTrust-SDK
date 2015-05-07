@@ -57,10 +57,26 @@ public interface ExtractedFeatures extends AutoCloseable
    //TODO: Page count better be the same between basic and advanced. If it is not, then need two separate
    //      pageCount accessors and the provided features data vehicle will be inconsistent in the data it pulls.
    //      But then that's the fault of whoever composed the files on disk that they don't match.
+   /**
+    * @return The number of page data entries for this {@link ExtractedFeatures} record.
+    * @throws HathiTrustClientException
+    * @see {@link #getPage(int)}
+    */
    int pageCount() throws HathiTrustClientException;
    //int pageCountBasic();
    //int pageCountAdvanced();
    
+   /**
+    * Get page features for the given page. The page index is an absolute, zero-based index based
+    * on the order of the page data in the processed inputs.
+    * <p>
+    * The implementation may return the same instance for multiple invocations with the same argument
+    * but is not required to do so.
+    * 
+    * @param page Zero-based page index
+    * @return {@link ExtractedPageFeatures} for the given page index.
+    * @throws HathiTrustClientException
+    */
    ExtractedPageFeatures getPage(int page) throws HathiTrustClientException;
    
    interface ExtractedPageFeatures
@@ -69,6 +85,12 @@ public interface ExtractedFeatures extends AutoCloseable
        * Get the main volume info as {@link ExtractedFeatures} from which this page was retrieved.
        */
       ExtractedFeatures getVolume();
+      
+      /**
+       * Get this page's index in its parent volume. A call to {@link ExtractedFeatures#getPage(int)}
+       * with this page's index as a value returns an instance with the same data as this instance.
+       */
+      int getPageIndex();
       
       String seq() throws HathiTrustClientException;
       
