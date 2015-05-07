@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,9 +60,9 @@ public class ExtractedFeaturesTests
          ExtractedFeaturesProvider p = mp;
          for (String id : ids)
          {
-            doTokens(id, p, (tok, bodyData) -> {
+            doTokens(id, p, (pkg) -> {
                try {
-                  System.out.println(tok + ": " + bodyData.getCount(tok));
+                  System.out.println(pkg.token + ": " + pkg.bodyData.getCount(pkg.token));
                } catch (Exception e) {
                   e.printStackTrace();
                }
@@ -71,7 +71,23 @@ public class ExtractedFeaturesTests
       }
    }
    
-   private void doTokens(String id, ExtractedFeaturesProvider p, BiConsumer<String, ExtractedFeatures.ExtractedPagePartOfSpeechData> f) throws Exception
+   /**
+    * An encapsulation to use in test cases
+    */
+   static class Pkg
+   {
+      String token;
+      ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData;
+      
+      Pkg(String t,
+          ExtractedFeatures.ExtractedPagePartOfSpeechData p)
+      {
+         token = t;
+         bodyData = p;
+      }
+   }
+   
+   private void doTokens(String id, ExtractedFeaturesProvider p, Consumer<Pkg> f) throws Exception
    {
       try (ExtractedFeatures feat = p.getExtractedFeatures(id))
       {
@@ -85,7 +101,7 @@ public class ExtractedFeaturesTests
          Set<String> toks = bodyData.tokens();
          toks.stream().sorted().forEach(tok ->
          {
-            f.accept(tok, bodyData);
+            f.accept(new Pkg(tok, bodyData));
          });
       }
    }
@@ -97,9 +113,9 @@ public class ExtractedFeaturesTests
       String TEST_FILE = "hvd.ah3d1a";
       try (DefaultExtractedFeaturesProvider mp = createProvider())
       {
-         doTokens(TEST_FILE, mp, (tok, bodyData) -> {
+         doTokens(TEST_FILE, mp, pkg -> {
             try {
-               System.out.println(tok + ": " + bodyData.getCount(tok));
+               System.out.println(pkg.token + ": " + pkg.bodyData.getCount(pkg.token));
             } catch (Exception e) {
                e.printStackTrace();
             }
