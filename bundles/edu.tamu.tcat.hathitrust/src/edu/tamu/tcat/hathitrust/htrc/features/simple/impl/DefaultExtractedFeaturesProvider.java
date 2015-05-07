@@ -92,7 +92,10 @@ public class DefaultExtractedFeaturesProvider implements ExtractedFeaturesProvid
     * @param type
     * @return The requested path, or {@code null} if the file does not exist.
     * @throws HathiTrustClientException
+    * 
+    * @deprecated Use proper PairTree implementation
     */
+   @Deprecated
    private Path getArchivePath(String htrcVolumeId, String type) throws HathiTrustClientException
    {
       // Volume-id looks like "xxx.123456" and needs to be split into
