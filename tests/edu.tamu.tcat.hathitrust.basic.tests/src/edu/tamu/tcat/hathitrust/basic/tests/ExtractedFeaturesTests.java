@@ -27,7 +27,8 @@ public class ExtractedFeaturesTests
    private static final Logger debug = Logger.getLogger(ExtractedFeaturesTests.class.getName());
    
    private static final String FILES_PATH_ROOT = "\\\\citd.tamu.edu\\citdfs\\archive\\HTRC_Dataset\\";
-   private static final String FILE_VOL_IDS = "res/volume_ids.txt";
+   // Use .properties file to gain semantics of comments and literals; potentially k=v mappings
+   private static final String FILE_VOL_IDS = "res/volume_ids.properties";
    
    private static final ConsoleHandler ch = new ConsoleHandler();
    
@@ -66,10 +67,14 @@ public class ExtractedFeaturesTests
       try (BufferedReader reader = Files.newBufferedReader(Paths.get(FILE_VOL_IDS)))
       {
          String s;
+         // ignore reading as a properties file and just process simple elements for now
          while ((s = reader.readLine()) != null)
          {
             s = s.trim();
             if (s.isEmpty())
+               continue;
+            // Skip commented lines
+            if (s.charAt(0) == '#')
                continue;
             ids.add(s);
          }
