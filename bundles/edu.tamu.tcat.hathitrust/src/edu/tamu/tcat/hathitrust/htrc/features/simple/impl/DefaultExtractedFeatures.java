@@ -172,7 +172,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
       }
       catch (Exception e)
       {
-         throw new HathiTrustClientException("Failed accessing metadata [title] on ["+vid+"]", e);
+         throw new HathiTrustClientException("Failed accessing metadata [metadata.title] on ["+vid+"]", e);
       }
    }
    
@@ -189,20 +189,33 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
       return (T)v;
    }
 
+   private <T> T getFeaturesValue(String key, Class<T> type) throws Exception
+   {
+      Map<String, ?> map = null;
+      if (basicData != null)
+         map = getBasic();
+      else
+         map = getAdvanced();
+      
+      Map<String, ?> meta = (Map)map.get("features");
+      Object v = meta.get(key);
+      return (T)v;
+   }
+   
    @Override
    public int pageCount() throws HathiTrustClientException
    {
       try
       {
-         Number v = getMetaValue("pageCount", Number.class);
+         Number v = getFeaturesValue("pageCount", Number.class);
          if (v == null)
-            throw new IllegalStateException("Missing value 'pageCount'");
+            throw new IllegalStateException("Missing value 'features.pageCount'");
          
          return v.intValue();
       }
       catch (Exception e)
       {
-         throw new HathiTrustClientException("Failed accessing metadata [pageCount] on ["+vid+"]", e);
+         throw new HathiTrustClientException("Failed accessing metadata [features.pageCount] on ["+vid+"]", e);
       }
    }
 
@@ -239,6 +252,12 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
       public ExtractedFeatures getVolume()
       {
          return parent;
+      }
+      
+      @Override
+      public int getPageIndex()
+      {
+         return index;
       }
       
       private synchronized Map<String, ?> loadPageBasicData() throws Exception

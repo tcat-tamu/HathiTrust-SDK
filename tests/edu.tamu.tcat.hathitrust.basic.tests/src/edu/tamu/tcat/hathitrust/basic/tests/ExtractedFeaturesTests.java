@@ -74,9 +74,10 @@ public class ExtractedFeaturesTests
          ExtractedFeaturesProvider p = mp;
          for (String id : ids)
          {
-            doTokens(id, p, (pkg) -> {
+            debug.fine("toks["+id+"]");
+            doTokens(id, null, p, (pkg) -> {
                try {
-                  debug.info(pkg.token + ": " + pkg.bodyData.getCount(pkg.token));
+                  debug.info(pkg.pageNum + " " + pkg.token + ": " + pkg.bodyData.getCount(pkg.token));
                } catch (Exception e) {
                   debug.log(Level.SEVERE, "Error", e);
                }
@@ -92,18 +93,24 @@ public class ExtractedFeaturesTests
    {
       String token;
       ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData;
+      int pageNum;
+      ExtractedFeatures.ExtractedPageFeatures page;
       
       Pkg(String t,
+          int pg,
+          ExtractedFeatures.ExtractedPageFeatures page,
           ExtractedFeatures.ExtractedPagePartOfSpeechData p)
       {
          token = t;
+         pageNum = pg;
+         this.page = page;
          bodyData = p;
       }
    }
    
-   private void doTokens(String id, Integer pageNumber, ExtractedFeaturesProvider p, Consumer<Pkg> f) throws Exception
+   private void doTokens(String id, Integer pageNumber, ExtractedFeaturesProvider fp, Consumer<Pkg> f) throws Exception
    {
-      try (ExtractedFeatures feat = p.getExtractedFeatures(id))
+      try (ExtractedFeatures feat = fp.getExtractedFeatures(id))
       {
          String vid = feat.getVolumeId();
          
@@ -111,13 +118,25 @@ public class ExtractedFeaturesTests
          
          debug.info("Title: " + feat.getMetadata().title());
          
-         ExtractedFeatures.ExtractedPageFeatures page = feat.getPage(48);
-         ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData = page.getBodyData();
-         Set<String> toks = bodyData.tokens();
-         toks.stream().sorted().forEach(tok ->
+         if (pageNumber != null)
          {
-            f.accept(new Pkg(tok, bodyData));
-         });
+            ExtractedFeatures.ExtractedPageFeatures page = feat.getPage(pageNumber.intValue());
+            ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData = page.getBodyData();
+            Set<String> toks = bodyData.tokens();
+            toks.stream().sorted().forEach(tok -> f.accept(new Pkg(tok, pageNumber.intValue(), page, bodyData)));
+         }
+         else
+         {
+            int pageCount = feat.pageCount();
+            for (int pg=0; pg < pageCount; ++pg)
+            {
+               ExtractedFeatures.ExtractedPageFeatures page = feat.getPage(pg);
+               ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData = page.getBodyData();
+               Set<String> toks = bodyData.tokens();
+               final int fpg = pg;
+               toks.stream().sorted().forEach(tok -> f.accept(new Pkg(tok, fpg, page, bodyData)));
+            }
+         }
       }
    }
    
@@ -126,9 +145,10 @@ public class ExtractedFeaturesTests
    public void testFactory() throws Exception
    {
       String TEST_FILE = "hvd.ah3d1a";
+      Integer TEST_PAGE = Integer.valueOf(48);
       try (DefaultExtractedFeaturesProvider mp = createProvider())
       {
-         doTokens(TEST_FILE, mp, pkg -> {
+         doTokens(TEST_FILE, TEST_PAGE, mp, pkg -> {
             try {
                debug.info(pkg.token + ": " + pkg.bodyData.getCount(pkg.token));
             } catch (Exception e) {
