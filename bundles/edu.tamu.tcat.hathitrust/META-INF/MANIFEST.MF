@@ -9,4 +9,9 @@ Export-Package: edu.tamu.tcat.hathitrust,
  edu.tamu.tcat.hathitrust.bibliography,
  edu.tamu.tcat.hathitrust.data,
  edu.tamu.tcat.hathitrust.htrc.features.simple,
+ edu.tamu.tcat.hathitrust.htrc.features.simple.impl,
  edu.tamu.tcat.hathitrust.rights
+Import-Package: com.fasterxml.jackson.core;version="2.3.1",
+ com.fasterxml.jackson.databind;version="2.3.1",
+ com.google.common.util.concurrent,
+ org.apache.commons.compress.compressors.bzip2;version="1.9.0"
