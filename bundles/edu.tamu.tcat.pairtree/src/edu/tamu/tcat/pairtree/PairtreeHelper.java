@@ -8,41 +8,40 @@ import java.util.regex.Pattern;
 
 public class PairtreeHelper
 {
-   //    protected static final Pairtree pairtree = new Pairtree();
-   protected static final Pattern PairtreeFilePartsRegex = Pattern.compile("(?<libid>[^/]+)/pairtree_root/(?<ppath>.+)/(?<cleanid>[^/]+)\\.[^.]+$");
+   private static final Pattern PATH_PATTERN = Pattern.compile("(?<libid>[^/]+)/pairtree_root/(?<ppath>.+)/(?<cleanid>[^/]+)\\.[^.]+$");
 
    /**
-    * Parses an HTRC pairtree file path into a {@link PairtreeDocument} that can be used
+    * Parses an HTRC pairtree file path into a {@link PairtreeDocumentPath} that can be used
     * to extract metadata about the document
     *
     * @param filePath The pairtree file path
-    * @return The {@link PairtreeDocument}
-    * @throws InvalidPairtreePathException Thrown if the given filePath is not a valid pairtree path
+    * @return A {@link PairtreeDocumentPath}
+    * @throws InvalidPairtreePathException If the given filePath is not a valid pairtree path
     */
-   public static PairtreeDocument parse(String filePath) throws InvalidPairtreePathException
+   public static PairtreeDocumentPath parse(String filePath) throws InvalidPairtreePathException
    {
-      Matcher pairtreeFilePartsMatcher = PairtreeFilePartsRegex.matcher(filePath);
+      Matcher pairtreeFilePartsMatcher = PATH_PATTERN.matcher(filePath);
       if (!pairtreeFilePartsMatcher.find())
-         throw new InvalidPairtreePathException(String.format("%s is not a valid HTRC pairtree file path", filePath));
+         throw new InvalidPairtreePathException("File path ["+filePath + "] is not a valid HTRC pairtree file path");
 
       String libraryId = pairtreeFilePartsMatcher.group("libid");
       String ppath = pairtreeFilePartsMatcher.group("ppath");
       String cleanId = pairtreeFilePartsMatcher.group("cleanid");
       String uncleanId = Pairtree.uncleanId(cleanId);
 
-      return new PairtreeDocument(filePath, libraryId, uncleanId, cleanId, ppath);
+      return new PairtreeDocumentPath(filePath, libraryId, uncleanId, cleanId, ppath);
    }
 
    /**
-    * Parses an HTRC pairtree file into a {@link PairtreeDocument} that can be used
+    * Parses an HTRC pairtree file into a {@link PairtreeDocumentPath} that can be used
     * to extract metadata about the document
     *
     * @param file The pairtree file
-    * @return The {@link PairtreeDocument}
+    * @return The {@link PairtreeDocumentPath}
     * @throws IOException Thrown if the canonical path of the given file cannot be resolved
     * @throws InvalidPairtreePathException Thrown if the given filePath is not a valid pairtree path
     */
-   public static PairtreeDocument parse(File file) throws IOException, InvalidPairtreePathException
+   public static PairtreeDocumentPath parse(File file) throws IOException, InvalidPairtreePathException
    {
       return parse(file.getCanonicalPath());
    }
@@ -114,9 +113,10 @@ public class PairtreeHelper
    }
 
    /**
-    * A class representing an HTRC pairtree document
+    * Represents an HTRC pairtree document's abstract file path. Segments are stored
+    * representing the library identifier, pairtree-path, and other data.
     */
-   public static class PairtreeDocument
+   public static class PairtreeDocumentPath
    {
       private final String _documentPath;
       private final String _libraryId;
@@ -124,7 +124,7 @@ public class PairtreeHelper
       private final String _uncleanId;
       private final String _ppath;
 
-      private PairtreeDocument(String documentPath, String source, String uncleanId, String cleanId, String ppath)
+      private PairtreeDocumentPath(String documentPath, String source, String uncleanId, String cleanId, String ppath)
       {
          _documentPath = documentPath;
          _libraryId = source;
@@ -210,10 +210,10 @@ public class PairtreeHelper
       {
          if (this == other)
             return true;
-         if (other == null || !(other instanceof PairtreeDocument))
+         if (other == null || !(other instanceof PairtreeDocumentPath))
             return false;
 
-         PairtreeDocument document = (PairtreeDocument)other;
+         PairtreeDocumentPath document = (PairtreeDocumentPath)other;
          return _cleanId.equals(document._cleanId);
       }
 
@@ -236,7 +236,11 @@ public class PairtreeHelper
       final String NO_HEADER_ARG = "--no-header";
 
       if (args.length < 1 || args.length > 2)
-         showUsageAndExit();
+      {
+         showUsage();
+         System.exit(-1);
+         return;
+      }
 
       boolean showHeader = true;
       String filePath = null;
@@ -246,32 +250,34 @@ public class PairtreeHelper
          showHeader = false;
          filePath = args[0];
       }
-
-      else
-
-      if (args.length == 2 && args[0].equals(NO_HEADER_ARG))
+      else if (args.length == 2 && args[0].equals(NO_HEADER_ARG))
       {
          showHeader = false;
          filePath = args[1];
       }
-
-      else
-
-      if (args.length == 1)
+      else if (args.length == 1)
       {
          if (args[0].equals(NO_HEADER_ARG))
-            showUsageAndExit();
+         {
+            showUsage();
+            System.exit(-1);
+            return;
+         }
 
          filePath = args[0];
       }
 
       if (filePath == null)
-         showUsageAndExit();
+      {
+         showUsage();
+         System.exit(-1);
+         return;
+      }
 
       try
       {
          File file = new File(filePath);
-         PairtreeDocument document = parse(file);
+         PairtreeDocumentPath document = parse(file);
          String uncleanId = document.getUncleanId();
          String cleanId = document.getCleanId();
          String libraryId = document.getLibraryId();
@@ -296,9 +302,8 @@ public class PairtreeHelper
       }
    }
 
-   private static void showUsageAndExit()
+   private static void showUsage()
    {
       System.out.println(String.format("Usage: %s <pairtree_file> [--no-header]", PairtreeHelper.class.getSimpleName()));
-      System.exit(-1);
    }
 }
