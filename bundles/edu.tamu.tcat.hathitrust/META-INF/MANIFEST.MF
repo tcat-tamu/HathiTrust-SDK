@@ -14,4 +14,5 @@ Export-Package: edu.tamu.tcat.hathitrust,
 Import-Package: com.fasterxml.jackson.core;version="2.3.1",
  com.fasterxml.jackson.databind;version="2.3.1",
  com.google.common.util.concurrent,
+ edu.tamu.tcat.pairtree,
  org.apache.commons.compress.compressors.bzip2;version="1.9.0"
