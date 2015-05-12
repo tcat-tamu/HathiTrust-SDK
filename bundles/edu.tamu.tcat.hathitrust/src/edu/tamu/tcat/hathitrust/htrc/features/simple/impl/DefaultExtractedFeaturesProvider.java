@@ -2,21 +2,19 @@ package edu.tamu.tcat.hathitrust.htrc.features.simple.impl;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import edu.tamu.tcat.hathitrust.HathiTrustClientException;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeatures;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeaturesProvider;
+import edu.tamu.tcat.pairtree.Pairtree;
 
 public class DefaultExtractedFeaturesProvider implements ExtractedFeaturesProvider, AutoCloseable
 {
@@ -92,31 +90,27 @@ public class DefaultExtractedFeaturesProvider implements ExtractedFeaturesProvid
     * @param type
     * @return The requested path, or {@code null} if the file does not exist.
     * @throws HathiTrustClientException
-    * 
-    * @deprecated Use proper PairTree implementation
     */
-   @Deprecated
    private Path getArchivePath(String htrcVolumeId, String type) throws HathiTrustClientException
    {
       // Volume-id looks like "xxx.123456" and needs to be split into
       // "xxx", "12", "34", "56", "xxx.123456.basic.json.bz2" parts
+      
+      int sepPos = htrcVolumeId.indexOf('.');
+      if (sepPos < 0)
+         throw new IllegalArgumentException("Parameter does not 'look like' a volume id ["+htrcVolumeId+"]");
+      
+      String src = htrcVolumeId.substring(0, sepPos);
+      String objId = htrcVolumeId.substring(sepPos+1);
+      
+      Path ppath = Pairtree.toPPath(objId);
 
-      String[] strs = htrcVolumeId.split(Pattern.quote("."));
-      String src = strs[0];
-      String tail = strs[1];
-
-      List<String> pairs = new ArrayList<>();
-      for (int i = 0; i < tail.length(); i += 2)
-      {
-         pairs.add(tail.substring(i, i + 2));
-      }
-
-      Path p = root.resolve(type).resolve(src).resolve("pairtree_root");
-      for (String part : pairs)
-         p = p.resolve(part);
-
-      p = p.resolve(tail);
-      Path file = p.resolve(htrcVolumeId + "." + type + ".json.bz2");
+      Path file = root.resolve(type)
+                      .resolve(src)
+                      .resolve("pairtree_root")
+                      .resolve(ppath)
+                      .resolve(objId)
+                      .resolve(htrcVolumeId + "." + type + ".json.bz2");
       if (!Files.exists(file))
          return null;
 
