@@ -86,7 +86,7 @@ public class PairtreeHelper
       String libId = htrcCleanId.substring(0, index);
       String cleanId = htrcCleanId.substring(index + 1);
       String uncleanId = Pairtree.uncleanId(cleanId);
-      Path ppath = Pairtree.mapToPPath(uncleanId);
+      Path ppath = Pairtree.toPPath(uncleanId);
 
       return String.format("%s/pairtree_root/%s/%s/", libId, ppath, cleanId);
    }
@@ -107,7 +107,7 @@ public class PairtreeHelper
       String libId = htrcUncleanId.substring(0, index);
       String uncleanId = htrcUncleanId.substring(index + 1);
       String cleanId = Pairtree.cleanId(uncleanId);
-      Path ppath = Pairtree.mapToPPath(uncleanId);
+      Path ppath = Pairtree.toPPath(uncleanId);
 
       return String.format("%s/pairtree_root/%s/%s/", libId, ppath, cleanId);
    }
