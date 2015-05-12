@@ -10,11 +10,8 @@ package edu.tamu.tcat.pairtree;
  * Revisions are Copyright Texas A&M Engineering Experiment Station, 2015
  * Released under the terms of Apache 2.0
  */
-import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -52,10 +49,10 @@ public class Pairtree
 
    public static final int DEFAULT_LENGTH = 2;
 
-   private char separator = File.separatorChar;
-
-   private int shortyLength = DEFAULT_LENGTH;
-   
+//   private char separator = File.separatorChar;
+//
+//   private int shortyLength = DEFAULT_LENGTH;
+//
 //   public int getShortyLength() {
 //      return this.shortyLength;
 //   }
@@ -107,7 +104,7 @@ public class Pairtree
       if (length <= 0)
          throw new IllegalArgumentException("Supplied path segment length [" + length + "] must be greater than 0.");
 
-      String cleanId = cleanId(id);
+      String cleanId = toCleanEncodedId(id);
 
       // Start at current directory and normalize before returning
       Path p = Paths.get(".");
@@ -126,16 +123,16 @@ public class Pairtree
       return p;
    }
 
-   /**
-    * Convenience method to convert some string based identifier to a filesystem path with a
-    * supplied prefix (root path) and encapsulating directory to store objects related to the
-    * supplied id.
-    * 
-    * @param basePath
-    * @param id
-    * @param encapsulatingDirName
-    * @return
-    */
+//   /**
+//    * Convenience method to convert some string based identifier to a filesystem path with a
+//    * supplied prefix (root path) and encapsulating directory to store objects related to the
+//    * supplied id.
+//    *
+//    * @param basePath
+//    * @param id
+//    * @param encapsulatingDirName
+//    * @return
+//    */
    //   public static String mapToPPath(String basePath, String id, String encapsulatingDirName) {
    //      // TODO evaluate if needed. Seems like boilerplate that should be supplied by client
    //      //      (NOTE, base path should be a path not a string)
@@ -147,25 +144,25 @@ public class Pairtree
    //      return this.mapToId(newPath);
    //   }
 
-   /**
-    * 
-    * @param ppath
-    * @return
-    * @throws InvalidPpathException
-    */
-   public String toId(Path ppath) throws InvalidPpathException
-   {
-      Path p = ppath.normalize();
-      String id = p.toString();
-      Path encapsulatingDir = this.extractEncapsulatingDirFromPpath(p);
-      if (encapsulatingDir != null)
-      {
-         id = encapsulatingDir.getName(encapsulatingDir.getNameCount()-1).toString();
-      }
-      id = id.replace(Character.toString(this.separator), "");
-      id = uncleanId(id);
-      return id;
-   }
+//   /**
+//    *
+//    * @param ppath
+//    * @return
+//    * @throws InvalidPpathException
+//    */
+//   public String toId(Path ppath) throws InvalidPpathException
+//   {
+//      Path p = ppath.normalize();
+//      String id = p.toString();
+//      Path encapsulatingDir = this.extractEncapsulatingDirFromPpath(p);
+//      if (encapsulatingDir != null)
+//      {
+//         id = encapsulatingDir.getName(encapsulatingDir.getNameCount()-1).toString();
+//      }
+//      id = id.replace(Character.toString(this.separator), "");
+//      id = uncleanId(id);
+//      return id;
+//   }
 
    // old ver of what is directly above
    //   public String mapToId(Path ppath) throws InvalidPpathException
@@ -191,50 +188,50 @@ public class Pairtree
 //   }
 
    // re-evaluate necessity - refactor this use
-   public Path extractEncapsulatingDirFromPpath(Path ppath) throws InvalidPpathException
-   {
-      Objects.requireNonNull(ppath);
-      ppath = ppath.normalize();
-
-      //Walk the ppath looking for first non-shorty
-      //String[] ppathParts = ppath.split("\\" + this.separator);
-
-      //If there is only 1 part
-      if (ppath.getNameCount() == 1)
-      {
-         //If part <= shorty length then no encapsulating dir
-         if (ppath.getName(0).toString().length() <= this.shortyLength)
-            return null;
-         
-         //Else no ppath
-         throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) contains no shorties", ppath));
-      }
-
-      //All parts up to next to last and last should have shorty length
-      for (int i = 0; i < ppath.getNameCount() - 2; i++)
-         if (ppath.getName(i).toString().length() != this.shortyLength)
-            throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) has parts of incorrect length", ppath));
-      
-      String nextToLastPart = ppath.getName(ppath.getNameCount()-2).toString();
-      String lastPart = ppath.getName(ppath.getNameCount() - 1).toString();
-      //Next to last should have shorty length or less
-      if (nextToLastPart.length() > this.shortyLength)
-         throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) has parts of incorrect length", ppath));
-      
-      //If next to last has shorty length
-      if (nextToLastPart.length() == this.shortyLength)
-      {
-         //If last has length > shorty length then encapsulating dir
-         if (lastPart.length() > this.shortyLength)
-         {
-            return ppath.subpath(0, ppath.getNameCount() -1);
-         }
-         //Else no encapsulating dir
-         return null;
-      }
-      //Else last is encapsulating dir
-      return ppath.subpath(0, ppath.getNameCount() -1);
-   }
+//   public Path extractEncapsulatingDirFromPpath(Path ppath) throws InvalidPpathException
+//   {
+//      Objects.requireNonNull(ppath);
+//      ppath = ppath.normalize();
+//
+//      //Walk the ppath looking for first non-shorty
+//      //String[] ppathParts = ppath.split("\\" + this.separator);
+//
+//      //If there is only 1 part
+//      if (ppath.getNameCount() == 1)
+//      {
+//         //If part <= shorty length then no encapsulating dir
+//         if (ppath.getName(0).toString().length() <= this.shortyLength)
+//            return null;
+//
+//         //Else no ppath
+//         throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) contains no shorties", ppath));
+//      }
+//
+//      //All parts up to next to last and last should have shorty length
+//      for (int i = 0; i < ppath.getNameCount() - 2; i++)
+//         if (ppath.getName(i).toString().length() != this.shortyLength)
+//            throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) has parts of incorrect length", ppath));
+//
+//      String nextToLastPart = ppath.getName(ppath.getNameCount()-2).toString();
+//      String lastPart = ppath.getName(ppath.getNameCount() - 1).toString();
+//      //Next to last should have shorty length or less
+//      if (nextToLastPart.length() > this.shortyLength)
+//         throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) has parts of incorrect length", ppath));
+//
+//      //If next to last has shorty length
+//      if (nextToLastPart.length() == this.shortyLength)
+//      {
+//         //If last has length > shorty length then encapsulating dir
+//         if (lastPart.length() > this.shortyLength)
+//         {
+//            return ppath.subpath(0, ppath.getNameCount() -1);
+//         }
+//         //Else no encapsulating dir
+//         return null;
+//      }
+//      //Else last is encapsulating dir
+//      return ppath.subpath(0, ppath.getNameCount() -1);
+//   }
 
    // not necessary when using Path
    //   private static Path concat(String... paths) {
@@ -250,36 +247,49 @@ public class Pairtree
    //      return path;
    //   }
 
-   public String removeBasepath(String basePath, String path)
+//   public String removeBasepath(String basePath, String path)
+//   {
+//      Objects.requireNonNull(basePath);
+//      Objects.requireNonNull(path);
+//
+//      String newPath = path;
+//      if (path.startsWith(basePath))
+//      {
+//         newPath = newPath.substring(basePath.length());
+//         if (newPath.startsWith(Character.toString(this.separator)))
+//            newPath = newPath.substring(1);
+//      }
+//      return newPath;
+//   }
+
+   /**
+    * Convert a "raw" object identifier into an encoded, "cleaned", UTF-8 identifier.
+    * <p>
+    * This is done by first replacing characters that are known to cause problems in
+    * filesystem identifiers with hex-encoded values (prefixed by {@link #HEX_INDICATOR})
+    * and second by replacing certain commonly-occurring characters one-to-one.
+    * <p>
+    * Cleaning does not require knowlege of segment length.
+    * 
+    * @param rawId A raw object identifier.
+    * @return The cleaned identifier as UTF-8 characters. May be equivalent to the argument if no cleaning was required.
+    */
+   public static String toCleanEncodedId(String rawId)
    {
-      Objects.requireNonNull(basePath);
-      Objects.requireNonNull(path);
+      Objects.requireNonNull(rawId, "Supplied id may not be null");
 
-      String newPath = path;
-      if (path.startsWith(basePath))
-      {
-         newPath = newPath.substring(basePath.length());
-         if (newPath.startsWith(Character.toString(this.separator)))
-            newPath = newPath.substring(1);
-      }
-      return newPath;
-   }
-
-   public static String cleanId(String id)
-   {
-      Objects.requireNonNull(id, "Supplied id may not be null");
-
-      //First pass
+      // First, convert from provided encoding to UTF-8 to ensure mapping into proper character space
       byte[] bytes;
       try
       {
-         bytes = id.getBytes("utf-8");
+         bytes = rawId.getBytes("utf-8");
       }
-      catch (UnsupportedEncodingException e)
+      catch (Exception e)
       {
-         throw new IllegalStateException("Error getting UTF-8 for path [" + id + "]", e);
+         throw new IllegalStateException("Error getting UTF-8 for raw object identifier [" + rawId + "]", e);
       }
 
+      // First pass
       StringBuffer idBuf = new StringBuffer();
       for (int c = 0; c < bytes.length; c++)
       {
@@ -304,44 +314,46 @@ public class Pairtree
 
    //private static HashSet<Integer> chars = new HashSet<>(Arrays.asList(0x22, 0x2a, 0x2b, 0x2c, 0x3c, 0x3d, 0x3e, 0x3f, 0x5c, 0x5e, 0x7c));
    // coerce to a string, then add other (printable) characters as values instead of codes. Retain codes above for code comparison
-   private static String charStr = "" + '"' + '*' + '+' + ',' + '<' + '>' + '\\' + '^' + '|';
+   private static String charStr = "" + '"' + '*' + '+' + ',' + '<' + '=' + '>' + '?' + '\\' + '^' + '|';
 
    /**
-    * @param id
-    * @return
+    * Convert a "cleaned" object identifier into a decoded, "uncleaned" identifier.
+    * <p>
+    * This is done by first reversing the second pass of the cleaning process, namely the
+    * one-to-one replacement of common characters. Then, hex-encoded values (prefixed
+    * by {@link #HEX_INDICATOR}) are decoded into the actual character value.
+    * <p>
+    * Cleaning does not require knowlege of segment length.
+    * 
+    * @param cleanId A clean object identifier.
+    * @return The raw identifier. May be equivalent to the argument if no encoding characters were found.
     */
-   public static String uncleanId(String id)
+   public static String toRawDecodedId(String cleanId)
    {
-      id = id.toString().replace('/', '=').replace(':', '+').replace('.', ',');
+      String id = cleanId.replace('=', '/').replace('+', ':').replace(',', '.');
+      int len = id.length();
+      
       StringBuffer idBuf = new StringBuffer();
-      for (int c = 0; c < id.length(); c++)
+      for (int c = 0; c < len; c++)
       {
          char ch = id.charAt(c);
-         if (ch == HEX_INDICATOR)
-         {
-            //Get the next 2 chars
-            String hex = id.substring(c + 1, c + 3);
-            char[] chars = Character.toChars(Integer.parseInt(hex, 16));
-            assert chars.length == 1; // TODO throw
-            idBuf.append(chars[0]);
-            c = c + 2;
-         }
-         else
+         if (ch != HEX_INDICATOR)
          {
             idBuf.append(ch);
+            continue;
          }
+         
+         // not enough characters to decode hex
+         if (len - c < 2)
+            throw new IllegalArgumentException("Identifier to decode ["+cleanId+"] contains invalid hex sequence at "+c);
+         
+         String hex = id.substring(c + 1, c + 3);
+         // don't care how many unicode chars this expands to. Might be UTF-16, so expand fully
+         int charCode = Integer.parseInt(hex, 16);
+         idBuf.appendCodePoint(charCode);
+         c += 2;
       }
 
       return idBuf.toString();
-   }
-
-   public static class InvalidPpathException extends Exception
-   {
-      private static final long serialVersionUID = 1L;
-
-      public InvalidPpathException(String msg)
-      {
-         super(msg);
-      }
    }
 }
