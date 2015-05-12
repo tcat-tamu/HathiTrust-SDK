@@ -13,7 +13,6 @@ package edu.tamu.tcat.pairtree;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.logging.Logger;
 
 /**
  * Provides an implementation of the Pairtree specification v 0.1. This class contains
@@ -43,7 +42,7 @@ import java.util.logging.Logger;
  */
 public class Pairtree
 {
-   private static final Logger debug = Logger.getLogger(Pairtree.class.getName());
+   //private static final Logger debug = Logger.getLogger(Pairtree.class.getName());
 
    public static final char HEX_INDICATOR = '^';
 
@@ -59,27 +58,6 @@ public class Pairtree
    private static final String charStr = "" + '"' + '*' + '+' + ',' + '<' + '=' + '>' + '?' + '\\' + '^' + '|';
 
    public static final int DEFAULT_LENGTH = 2;
-
-//   private char separator = File.separatorChar;
-//
-//   private int shortyLength = DEFAULT_LENGTH;
-//
-//   public int getShortyLength() {
-//      return this.shortyLength;
-//   }
-//
-//   public void setShortyLength(int length) {
-//      this.shortyLength = length;
-//   }
-//
-//   public Character getSeparator() {
-//      return separator;
-//   }
-//
-//   public void setSeparator(Character separator) {
-//      this.separator = separator;
-//   }
-//
 
    /**
     * Converts an object identifier into a ppath represented by a normalized, relative {@link Path}.
@@ -139,63 +117,42 @@ public class Pairtree
       return p;
    }
 
-//   /**
-//    * Convenience method to convert some string based identifier to a filesystem path with a
-//    * supplied prefix (root path) and encapsulating directory to store objects related to the
-//    * supplied id.
-//    *
-//    * @param basePath
-//    * @param id
-//    * @param encapsulatingDirName
-//    * @return
-//    */
-   //   public static String mapToPPath(String basePath, String id, String encapsulatingDirName) {
-   //      // TODO evaluate if needed. Seems like boilerplate that should be supplied by client
-   //      //      (NOTE, base path should be a path not a string)
-   //      return concat(basePath, mapToPPath(id), encapsulatingDirName).toString();
-   //   }
-   //
-   //   public String mapToId(String basepath, String ppath) throws InvalidPpathException {
-   //      String newPath = this.removeBasepath(basepath, ppath);
-   //      return this.mapToId(newPath);
-   //   }
-
-//   /**
-//    *
-//    * @param ppath
-//    * @return
-//    * @throws InvalidPpathException
-//    */
-//   public String toId(Path ppath) throws InvalidPpathException
-//   {
-//      Path p = ppath.normalize();
-//      String id = p.toString();
-//      Path encapsulatingDir = this.extractEncapsulatingDirFromPpath(p);
-//      if (encapsulatingDir != null)
-//      {
-//         id = encapsulatingDir.getName(encapsulatingDir.getNameCount()-1).toString();
-//      }
-//      id = id.replace(Character.toString(this.separator), "");
-//      id = uncleanId(id);
-//      return id;
-//   }
-
-   // old ver of what is directly above
-   //   public String mapToId(Path ppath) throws InvalidPpathException
-   //   {
-   //      String id = ppath;
-   //      if (id.endsWith(Character.toString(this.separator))) {
-   //         id = id.substring(0, id.length()-1);
-   //      }
-   //      String encapsulatingDir = this.extractEncapsulatingDirFromPpath(ppath);
-   //      if (encapsulatingDir != null) {
-   //         id = id.substring(0, id.length() - encapsulatingDir.length());
-   //      }
-   //      id = id.replace(Character.toString(this.separator), "");
-   //
-   //      id = this.uncleanId(id);
-   //      return id;
-   //   }
+   /**
+    * Convert a ppath represented by a {@link Path} to a raw, decoded object identifier.
+    * <p>
+    * An exception is thrown if the provided {@link Path} appears to not follow the ppath spec by including
+    * zero initial path segments of proper length.
+    * <p>
+    * Uses {@link #DEFAULT_LENGTH}
+    * 
+    * @param ppath
+    * @return An object identifier
+    */
+   public static String toObjectId(Path ppath)
+   {
+      return toObjectId(ppath, DEFAULT_LENGTH);
+   }
+   
+   /**
+    * Convert a ppath represented by a {@link Path} to a raw, decoded object identifier.
+    * <p>
+    * An exception is thrown if the provided {@link Path} appears to not follow the ppath spec by including
+    * zero initial path segments of proper length.
+    * <p>
+    * Uses {@link #DEFAULT_LENGTH}
+    * 
+    * @param ppath
+    * @param length The expected length of ppath segments.
+    * @return An object identifier
+    */
+   public static String toObjectId(Path ppath, int length)
+   {
+      Path base = getPpathBase(ppath, length);
+      StringBuilder id = new StringBuilder();
+      for (int i=0; i<base.getNameCount(); ++i)
+         id.append(base.getName(i));
+      return toRawDecodedId(id.toString());
+   }
 
    /**
     * Compute and return the ppath "base" portion of the provided {@link Path}. The ppath portion
@@ -203,7 +160,8 @@ public class Pairtree
     * making the returned {@link Path} a ppath with a proper terminal which does not include any
     * object encapsulation path segments.
     * <p>
-    * If the provided {@link Path} appears to not follow the ppath spec, an empty {@link Path} is returned.
+    * An exception is thrown if the provided {@link Path} appears to not follow the ppath spec by including
+    * zero initial path segments of proper length.
     * <p>
     * Uses {@link #DEFAULT_LENGTH}
     * 
@@ -265,20 +223,6 @@ public class Pairtree
 
       return base;
    }
-
-   // not necessary when using Path
-   //   private static Path concat(String... paths) {
-   //      if (paths == null || paths.length == 0)
-   //         throw new IllegalArgumentException("Invalid path sequence. Must supply a non-empty array of path segments.");
-   //
-   //      Path path = Paths.get(paths[0]);
-   //      for (int i = 1; i < paths.length; i++)
-   //      {
-   //         path = path.resolve(paths[i]);
-   //      }
-   //
-   //      return path;
-   //   }
 
    /**
     * Convert a "raw" object identifier into an encoded, "cleaned", UTF-8 identifier.

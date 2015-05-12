@@ -113,47 +113,56 @@ public class PairtreeTests
       Assert.assertEquals(Paths.get("h"), justObj2);
    }
 
-//   @Test
-//   public void testMapToId() throws InvalidPpathException {
-//      assertEquals("ab", pt.mapToId("ab"));
-//      assertEquals("abcd", pt.mapToId("ab/cd"));
-//      assertEquals("abcd", pt.mapToId("ab/cd/"));
-//      assertEquals("abcdefg", pt.mapToId("ab/cd/ef/g"));
-//      assertEquals("abcdefg", pt.mapToId("ab/cd/ef/g/"));
-//      assertEquals("abcdefg", pt.mapToId("ab/cd/ef/g/h"));
-//      assertEquals("abcdefg", pt.mapToId("ab/cd/ef/g/h/"));
-//      assertEquals("abcd", pt.mapToId("ab/cd/efg"));
-//      assertEquals("abcd", pt.mapToId("ab/cd/efg/"));
-//      assertEquals("abcdefg", pt.mapToId("ab/cd/ef/g/h"));
-//      assertEquals("abcdefg", pt.mapToId("ab/cd/ef/g/h/"));
-//
-//      assertEquals("ab/cd/ef/g", pt.mapToPPath("abcdefg"));
-//      assertEquals("12-986xy4", pt.mapToId("12/-9/86/xy/4"));
-//
-//      assertEquals("13030_45xqv_793842495", pt.mapToId("13/03/0_/45/xq/v_/79/38/42/49/5"));
-//      assertEquals("13030_45xqv_793842495", pt.mapToId("13/03/0_/45/xq/v_/79/38/42/49/5/793842495"));
-//      assertEquals("13030_45xqv_793842495", pt.mapToId("/data", "/data/13/03/0_/45/xq/v_/79/38/42/49/5"));
-//      assertEquals("13030_45xqv_793842495", pt.mapToId("/data/", "/data/13/03/0_/45/xq/v_/79/38/42/49/5"));
-//      assertEquals("13030_45xqv_793842495", pt.mapToId("/data", "/data/13/03/0_/45/xq/v_/79/38/42/49/5/793842495"));
-//   }
-//
-//
-//   @Test(expected=gov.loc.repository.pairtree.Pairtree.InvalidPpathException.class)
-//   public void testInvalidExtractEncapsulatingDir1() throws InvalidPpathException {
-//      pt.extractEncapsulatingDirFromPpath("abc");
-//   }
-//
-//   @Test(expected=gov.loc.repository.pairtree.Pairtree.InvalidPpathException.class)
-//   public void testInvalidExtractEncapsulatingDir2() throws InvalidPpathException {
-//      pt.extractEncapsulatingDirFromPpath("ab/cdx/efg/");
-//   }
-//
-//   @Test
-//   public void testMapToIdWithIdCleaning() throws InvalidPpathException {
-//      assertEquals("ark:/13030/xt12t3", pt.mapToId("ar/k+/=1/30/30/=x/t1/2t/3"));
-//      assertEquals("http://n2t.info/urn:nbn:se:kb:repos-1", pt.mapToId("ht/tp/+=/=n/2t/,i/nf/o=/ur/n+/nb/n+/se/+k/b+/re/po/s-/1"));
-//      assertEquals("what-the-*@?#!^!?", pt.mapToId("wh/at/-t/he/-^/2a/@^/3f/#!/^5/e!/^3/f"));
-//   }
+   @Test
+   public void testMapToId()
+   {
+      Assert.assertEquals("ab", Pairtree.toObjectId(Paths.get("ab")));
+      Assert.assertEquals("abcd", Pairtree.toObjectId(Paths.get("ab/cd")));
+      Assert.assertEquals("abcd", Pairtree.toObjectId(Paths.get("ab/cd/")));
+      Assert.assertEquals("abcdefg", Pairtree.toObjectId(Paths.get("ab/cd/ef/g")));
+      Assert.assertEquals("abcdefg", Pairtree.toObjectId(Paths.get("ab/cd/ef/g/")));
+      Assert.assertEquals("abcdefg", Pairtree.toObjectId(Paths.get("ab/cd/ef/g/h")));
+      Assert.assertEquals("abcdefg", Pairtree.toObjectId(Paths.get("ab/cd/ef/g/h/")));
+      Assert.assertEquals("abcd", Pairtree.toObjectId(Paths.get("ab/cd/efg")));
+      Assert.assertEquals("abcd", Pairtree.toObjectId(Paths.get("ab/cd/efg/")));
+      Assert.assertEquals("abcdefg", Pairtree.toObjectId(Paths.get("ab/cd/ef/g/h")));
+      Assert.assertEquals("abcdefg", Pairtree.toObjectId(Paths.get("ab/cd/ef/g/h/")));
+
+      Assert.assertEquals("12-986xy4", Pairtree.toObjectId(Paths.get("12/-9/86/xy/4")));
+
+      Assert.assertEquals("13030_45xqv_793842495", Pairtree.toObjectId(Paths.get("13/03/0_/45/xq/v_/79/38/42/49/5")));
+      Assert.assertEquals("13030_45xqv_793842495", Pairtree.toObjectId(Paths.get("13/03/0_/45/xq/v_/79/38/42/49/5/793842495")));
+      
+      Path base = Paths.get("/data");
+      Assert.assertEquals("13030_45xqv_793842495", Pairtree.toObjectId(base.relativize(Paths.get("/data/13/03/0_/45/xq/v_/79/38/42/49/5"))));
+      Assert.assertEquals("13030_45xqv_793842495", Pairtree.toObjectId(base.relativize(Paths.get("/data/13/03/0_/45/xq/v_/79/38/42/49/5/793842495"))));
+   }
+
+   @Test
+   public void testMapToIdWithIdCleaning()
+   {
+      Assert.assertEquals("ark:/13030/xt12t3", Pairtree.toObjectId(Paths.get(("ar/k+/=1/30/30/=x/t1/2t/3"))));
+      Assert.assertEquals("http://n2t.info/urn:nbn:se:kb:repos-1", Pairtree.toObjectId(Paths.get(("ht/tp/+=/=n/2t/,i/nf/o=/ur/n+/nb/n+/se/+k/b+/re/po/s-/1"))));
+      Assert.assertEquals("what-the-*@?#!^!?", Pairtree.toObjectId(Paths.get(("wh/at/-t/he/-^/2a/@^/3f/#!/^5/e!/^3/f"))));
+   }
+   
+   @Ignore
+   @Test
+   public void testProperEncapsulation()
+   {
+      //TODO: somehow craft tests for these?
+      // This object is not properly encapsulated: ppath followed by "h" which is too short
+      //Paths.get("ab/cd/ef/g/h/");
+      // As a pair, the first object is not properly encapsulated: no encapsulation
+      //Paths.get("ab/cd/ef/a.txt");
+      
+      // Properly encapsulated under "hij"
+      //Paths.get("ab/cd/ef/g/hij/");
+      // Properly encapsulated under "abcdefg", full ppath as encapsulation directory
+      //Paths.get("ab/cd/ef/g/abcdefg/");
+      // Properly encapsulated under "cdefg", abbreviated (tail) ppath as encapsulation directory
+      //Paths.get("ab/cd/ef/g/abcdefg/");
+   }
    
    @Test
    @Ignore
