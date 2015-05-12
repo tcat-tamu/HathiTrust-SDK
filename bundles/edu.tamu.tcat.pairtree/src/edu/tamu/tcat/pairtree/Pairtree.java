@@ -197,57 +197,74 @@ public class Pairtree
    //      return id;
    //   }
 
-//   public String extractEncapsulatingDirFromPpath(String basepath, String ppath) throws InvalidPpathException
-//   {
-//      String newPath = this.removeBasepath(basepath, ppath);
-//      return this.extractEncapsulatingDirFromPpath(newPath);
-//   }
+   /**
+    * Compute and return the ppath "base" portion of the provided {@link Path}. The ppath portion
+    * is that sub-path (starting with the same initial segment) which follows the ppath spec,
+    * making the returned {@link Path} a ppath with a proper terminal which does not include any
+    * object encapsulation path segments.
+    * <p>
+    * If the provided {@link Path} appears to not follow the ppath spec, an empty {@link Path} is returned.
+    * <p>
+    * Uses {@link #DEFAULT_LENGTH}
+    * 
+    * @param fullPath
+    * @return A ppath representing the base of the given path.
+    */
+   public static Path getPpathBase(Path fullPath)
+   {
+      return getPpathBase(fullPath, DEFAULT_LENGTH);
+   }
+   
+   /**
+    * Compute and return the ppath "base" portion of the provided {@link Path}. The ppath portion
+    * is that sub-path (starting with the same initial segment) which follows the ppath spec,
+    * making the returned {@link Path} a ppath with a proper terminal which does not include any
+    * object encapsulation path segments.
+    * <p>
+    * A ppath is typically not an absolute path, so any known path prefix to the ppath directory
+    * structure should be {@link Path#relativize(Path) relativized} prior to being used as an argument.
+    * <p>
+    * An exception is thrown if the provided {@link Path} appears to not follow the ppath spec by including
+    * zero initial path segments of proper length.
+    * 
+    * @param fullPath
+    * @param length The expected length of ppath segments.
+    * @return A ppath representing the base of the given path.
+    */
+   public static Path getPpathBase(Path fullPath, int length)
+   {
+      Objects.requireNonNull(fullPath);
+      fullPath = fullPath.normalize();
+      
+      int segments = fullPath.getNameCount();
+      Path base = null;
+      for (int i=0; i < segments; ++i)
+      {
+         Path seg = fullPath.getName(i);
+         String s = seg.toString();
+         
+         // A ppath terminal case; starts with "pairtree"
+         if (s.startsWith("pairtree"))
+            break;
+         // A ppath terminal case; length is larger than shorty
+         if (s.length() > length)
+            break;
+         
+         // A ppath terminal case; length is smaller than shorty, but retain the morty
+         if (s.length() < length)
+         {
+            base = fullPath.subpath(0, i+1);
+            break;
+         }
+         
+         base = fullPath.subpath(0, i+1);
+      }
+      
+      if (base == null)
+         throw new IllegalArgumentException("Path ["+fullPath+"] contains no shorties");
 
-   // re-evaluate necessity - refactor this use
-//   public Path extractEncapsulatingDirFromPpath(Path ppath) throws InvalidPpathException
-//   {
-//      Objects.requireNonNull(ppath);
-//      ppath = ppath.normalize();
-//
-//      //Walk the ppath looking for first non-shorty
-//      //String[] ppathParts = ppath.split("\\" + this.separator);
-//
-//      //If there is only 1 part
-//      if (ppath.getNameCount() == 1)
-//      {
-//         //If part <= shorty length then no encapsulating dir
-//         if (ppath.getName(0).toString().length() <= this.shortyLength)
-//            return null;
-//
-//         //Else no ppath
-//         throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) contains no shorties", ppath));
-//      }
-//
-//      //All parts up to next to last and last should have shorty length
-//      for (int i = 0; i < ppath.getNameCount() - 2; i++)
-//         if (ppath.getName(i).toString().length() != this.shortyLength)
-//            throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) has parts of incorrect length", ppath));
-//
-//      String nextToLastPart = ppath.getName(ppath.getNameCount()-2).toString();
-//      String lastPart = ppath.getName(ppath.getNameCount() - 1).toString();
-//      //Next to last should have shorty length or less
-//      if (nextToLastPart.length() > this.shortyLength)
-//         throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) has parts of incorrect length", ppath));
-//
-//      //If next to last has shorty length
-//      if (nextToLastPart.length() == this.shortyLength)
-//      {
-//         //If last has length > shorty length then encapsulating dir
-//         if (lastPart.length() > this.shortyLength)
-//         {
-//            return ppath.subpath(0, ppath.getNameCount() -1);
-//         }
-//         //Else no encapsulating dir
-//         return null;
-//      }
-//      //Else last is encapsulating dir
-//      return ppath.subpath(0, ppath.getNameCount() -1);
-//   }
+      return base;
+   }
 
    // not necessary when using Path
    //   private static Path concat(String... paths) {
@@ -262,21 +279,6 @@ public class Pairtree
    //
    //      return path;
    //   }
-
-//   public String removeBasepath(String basePath, String path)
-//   {
-//      Objects.requireNonNull(basePath);
-//      Objects.requireNonNull(path);
-//
-//      String newPath = path;
-//      if (path.startsWith(basePath))
-//      {
-//         newPath = newPath.substring(basePath.length());
-//         if (newPath.startsWith(Character.toString(this.separator)))
-//            newPath = newPath.substring(1);
-//      }
-//      return newPath;
-//   }
 
    /**
     * Convert a "raw" object identifier into an encoded, "cleaned", UTF-8 identifier.

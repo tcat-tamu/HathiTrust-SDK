@@ -83,27 +83,36 @@ public class PairtreeTests
       Assert.assertEquals(Paths.get("wh/at/-t/he/-^/2a/@^/3f/#!/^5/e!/^3/f"), Pairtree.toPPath("what-the-*@?#!^!?"));
    }
 
-//   @Test
-//   public void testExtractEncapsulatingDir() throws InvalidPpathException {
-//      assertNull(pt.extractEncapsulatingDirFromPpath("ab"));
-//      assertNull(pt.extractEncapsulatingDirFromPpath("ab/cd"));
-//      assertNull(pt.extractEncapsulatingDirFromPpath("ab/cd/"));
-//      assertNull(pt.extractEncapsulatingDirFromPpath("ab/cd/ef/g"));
-//      assertNull(pt.extractEncapsulatingDirFromPpath("ab/cd/ef/g/"));
-//      assertEquals("h", pt.extractEncapsulatingDirFromPpath("ab/cd/ef/g/h"));
-//      assertEquals("h", pt.extractEncapsulatingDirFromPpath("ab/cd/ef/g/h/"));
-//      assertEquals("efg", pt.extractEncapsulatingDirFromPpath("ab/cd/efg"));
-//      assertEquals("efg", pt.extractEncapsulatingDirFromPpath("ab/cd/efg/"));
-//      assertEquals("h", pt.extractEncapsulatingDirFromPpath("ab/cd/ef/g/h"));
-//      assertEquals("h", pt.extractEncapsulatingDirFromPpath("ab/cd/ef/g/h/"));
-//
-//      assertNull(pt.extractEncapsulatingDirFromPpath("/data", "/data/ab"));
-//      assertNull(pt.extractEncapsulatingDirFromPpath("/data/", "/data/ab"));
-//      assertEquals("h", pt.extractEncapsulatingDirFromPpath("/data", "/data/ab/cd/ef/g/h"));
-//      assertEquals("h", pt.extractEncapsulatingDirFromPpath("/data/", "/data/ab/cd/ef/g/h"));
-//
-//   }
-//
+   @Test
+   public void testEncapsulatingDir()
+   {
+      // Ensure encapsulating dir path is pruned
+      Assert.assertEquals(Paths.get("ab"), Pairtree.getPpathBase(Paths.get("ab")));
+      Assert.assertEquals(Paths.get("ab/cd"), Pairtree.getPpathBase(Paths.get("ab/cd")));
+      Assert.assertEquals(Paths.get("ab/cd"), Pairtree.getPpathBase(Paths.get("ab/cd/")));
+      Assert.assertEquals(Paths.get("ab/cd/ef/g"), Pairtree.getPpathBase(Paths.get("ab/cd/ef/g")));
+      Assert.assertEquals(Paths.get("ab/cd/ef/g"), Pairtree.getPpathBase(Paths.get("ab/cd/ef/g/")));
+      Assert.assertEquals(Paths.get("ab/cd/ef/g"), Pairtree.getPpathBase(Paths.get("ab/cd/ef/g/h")));
+      Assert.assertEquals(Paths.get("ab/cd/ef/g"), Pairtree.getPpathBase(Paths.get("ab/cd/ef/g/h/")));
+      Assert.assertEquals(Paths.get("ab/cd"), Pairtree.getPpathBase(Paths.get("ab/cd/efg")));
+      Assert.assertEquals(Paths.get("ab/cd"), Pairtree.getPpathBase(Paths.get("ab/cd/efg/")));
+      
+      // Extract encapsulating dir from relative path
+      Path relToObjDir = Paths.get("ab/cd/ef/g/h/");
+      Path justObjDir = Pairtree.getPpathBase(relToObjDir).relativize(relToObjDir);
+      Assert.assertEquals(Paths.get("h"), justObjDir);
+
+      // Prune encapsulating dir from an absolute path
+      Path base = Paths.get("/data");
+      Assert.assertEquals(Paths.get("ab"),         Pairtree.getPpathBase(base.relativize(Paths.get("/data/ab"))));
+      Assert.assertEquals(Paths.get("ab/cd/ef/g"), Pairtree.getPpathBase(base.relativize(Paths.get("/data/ab/cd/ef/g/h"))));
+      
+      // Extract encapsulating dir from absolute path
+      Path relToObj2 = base.relativize(Paths.get("/data/ab/cd/ef/g/h"));
+      Path justObj2 = Pairtree.getPpathBase(relToObj2).relativize(relToObj2);
+      Assert.assertEquals(Paths.get("h"), justObj2);
+   }
+
 //   @Test
 //   public void testMapToId() throws InvalidPpathException {
 //      assertEquals("ab", pt.mapToId("ab"));
