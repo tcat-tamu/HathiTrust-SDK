@@ -37,41 +37,52 @@ public class PairtreeTests
 //      pt.setSeparator('/');
 //   }
 
-//   @Test
-//   public void testtoPPath() {
-//      Assert.assertEquals(Paths.get("ab/cd"), Pairtree.toPPath("abcd"));
-//      Assert.assertEquals(Paths.get("ab/cd/ef/g"), Pairtree.toPPath("abcdefg"));
-//      Assert.assertEquals(Paths.get("12/-9/86/xy/4"), Pairtree.toPPath("12-986xy4"));
-
-//      assertEquals("13/03/0_/45/xq/v_/79/38/42/49/5", pt.mapToPPath(null, "13030_45xqv_793842495", null));
-//      assertEquals("13/03/0_/45/xq/v_/79/38/42/49/5/793842495", pt.mapToPPath(null, "13030_45xqv_793842495", "793842495"));
-//      assertEquals("/data/13/03/0_/45/xq/v_/79/38/42/49/5", pt.mapToPPath("/data", "13030_45xqv_793842495", null));
-//      assertEquals("/data/13/03/0_/45/xq/v_/79/38/42/49/5", pt.mapToPPath("/data/", "13030_45xqv_793842495", null));
-//      assertEquals("/data/13/03/0_/45/xq/v_/79/38/42/49/5/793842495", pt.mapToPPath("/data", "13030_45xqv_793842495", "793842495"));
-//   }
-
    @Test
    public void testIdCleaning() {
       Assert.assertEquals("ark+=13030=xt12t3", Pairtree.toCleanEncodedId("ark:/13030/xt12t3"));
       Assert.assertEquals("http+==n2t,info=urn+nbn+se+kb+repos-1", Pairtree.toCleanEncodedId("http://n2t.info/urn:nbn:se:kb:repos-1"));
       Assert.assertEquals("what-the-^2a@^3f#!^5e!^3f", Pairtree.toCleanEncodedId("what-the-*@?#!^!?"));
    }
+   
+   @Test
+   public void testIdUncleaning() {
+      Assert.assertEquals("ark:/13030/xt12t3", Pairtree.toRawDecodedId("ark+=13030=xt12t3"));
+      Assert.assertEquals("http://n2t.info/urn:nbn:se:kb:repos-1", Pairtree.toRawDecodedId("http+==n2t,info=urn+nbn+se+kb+repos-1"));
+      Assert.assertEquals("what-the-*@?#!^!?", Pairtree.toRawDecodedId("what-the-^2a@^3f#!^5e!^3f"));
+   }
+   
+   @Test
+   public void testtoPPath() {
+      Assert.assertEquals(Paths.get("ab/cd"), Pairtree.toPPath("abcd"));
+      Assert.assertEquals(Paths.get("ab/cd/ef/g"), Pairtree.toPPath("abcdefg"));
+      Assert.assertEquals(Paths.get("12/-9/86/xy/4"), Pairtree.toPPath("12-986xy4"));
+      
+      Path base = Paths.get("/data");
+      Path objDir = Paths.get("793842495");
 
-//   @Test
-//   public void testIdUncleaning() {
-//      assertEquals("ark:/13030/xt12t3", pt.uncleanId("ark+=13030=xt12t3"));
-//      assertEquals("http://n2t.info/urn:nbn:se:kb:repos-1", pt.uncleanId("http+==n2t,info=urn+nbn+se+kb+repos-1"));
-//      assertEquals("what-the-*@?#!^!?", pt.uncleanId("what-the-^2a@^3f#!^5e!^3f"));
-//   }
-//
-//   @Test
-//   public void testtoPPathWithIdCleaning() {
-//      assertEquals("ar/k+/=1/30/30/=x/t1/2t/3", pt.mapToPPath("ark:/13030/xt12t3"));
-//
-//      assertEquals("ht/tp/+=/=n/2t/,i/nf/o=/ur/n+/nb/n+/se/+k/b+/re/po/s-/1", pt.mapToPPath("http://n2t.info/urn:nbn:se:kb:repos-1"));
-//      assertEquals("wh/at/-t/he/-^/2a/@^/3f/#!/^5/e!/^3/f", pt.mapToPPath("what-the-*@?#!^!?"));
-//   }
-//
+      Assert.assertEquals(Paths.get("13/03/0_/45/xq/v_/79/38/42/49/5"), Pairtree.toPPath("13030_45xqv_793842495"));
+      Assert.assertEquals(Paths.get("13/03/0_/45/xq/v_/79/38/42/49/5/793842495"), Pairtree.toPPath("13030_45xqv_793842495").resolve(objDir));
+      Assert.assertEquals(Paths.get("/data/13/03/0_/45/xq/v_/79/38/42/49/5"), base.resolve(Pairtree.toPPath("13030_45xqv_793842495")));
+      Assert.assertEquals(Paths.get("/data/13/03/0_/45/xq/v_/79/38/42/49/5/793842495"), base.resolve(Pairtree.toPPath("13030_45xqv_793842495")).resolve(objDir));
+   }
+
+   @Test
+   public void testtoPPathIrregular() {
+      Assert.assertEquals(Paths.get("abc/d"),       Pairtree.toPPath("abcd",      3));
+      Assert.assertEquals(Paths.get("abc/def/g"),   Pairtree.toPPath("abcdefg",   3));
+      Assert.assertEquals(Paths.get("12-/986/xy4"), Pairtree.toPPath("12-986xy4", 3));
+      Assert.assertEquals(Paths.get("abcd"),        Pairtree.toPPath("abcd",      5));
+      Assert.assertEquals(Paths.get("abcde/fg"),    Pairtree.toPPath("abcdefg",   5));
+      Assert.assertEquals(Paths.get("12-98/6xy4"),  Pairtree.toPPath("12-986xy4", 5));
+   }
+   
+   @Test
+   public void testtoPPathWithIdCleaning() {
+      Assert.assertEquals(Paths.get("ar/k+/=1/30/30/=x/t1/2t/3"), Pairtree.toPPath("ark:/13030/xt12t3"));
+      Assert.assertEquals(Paths.get("ht/tp/+=/=n/2t/,i/nf/o=/ur/n+/nb/n+/se/+k/b+/re/po/s-/1"), Pairtree.toPPath("http://n2t.info/urn:nbn:se:kb:repos-1"));
+      Assert.assertEquals(Paths.get("wh/at/-t/he/-^/2a/@^/3f/#!/^5/e!/^3/f"), Pairtree.toPPath("what-the-*@?#!^!?"));
+   }
+
 //   @Test
 //   public void testExtractEncapsulatingDir() throws InvalidPpathException {
 //      assertNull(pt.extractEncapsulatingDirFromPpath("ab"));

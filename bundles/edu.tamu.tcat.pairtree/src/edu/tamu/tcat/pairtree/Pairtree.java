@@ -47,6 +47,17 @@ public class Pairtree
 
    public static final char HEX_INDICATOR = '^';
 
+   /**
+    * All special characters (within the range of 0x21 to 0x7e) that must be hex-encoded when cleaning an identifier.
+    * A single string is convenient because {@link String#indexOf(int)} may be used to detect presence rather than
+    * explicit iteration.
+    * 
+    * @see Pairtree#toCleanEncodedId(String)
+    * @see #toRawDecodedId(String)
+    */
+   // (coerce to str, then append)           0x22, 0x2a, 0x2b, 0x2c, 0x3c, 0x3d, 0x3e, 0x3f, 0x5c,  0x5e, 0x7c
+   private static final String charStr = "" + '"' + '*' + '+' + ',' + '<' + '=' + '>' + '?' + '\\' + '^' + '|';
+
    public static final int DEFAULT_LENGTH = 2;
 
 //   private char separator = File.separatorChar;
@@ -71,40 +82,44 @@ public class Pairtree
 //
 
    /**
-    * Converts an identifier into a relative {@link Path} as described in the Pairtree spec
-    * (i.e. a "pair path")
+    * Converts an object identifier into a ppath represented by a normalized, relative {@link Path}.
+    * <p>
+    * Path segments are as described in the Pairtree spec
     * with each path segment being the default length of {@value #DEFAULT_LENGTH}. Returns
-    * the same result as calling <tt>toPPath(id, {@link DEFAULT_LENGTH})</tt>.
+    * the same result as calling <tt>toPPath(objId, {@link DEFAULT_LENGTH})</tt>.
     * 
-    * @param id The id to be converted to a pairtree path.
+    * @param objId The object identifier to be converted to a pairtree path.
     * 
-    * @return A relative {@link Path} for the corresponding id.
+    * @return A relative {@link Path} for the corresponding object identifier.
     * @see #toPPath(String, int)
+    * @see #DEFAULT_LENGTH
     */
-   public static Path toPPath(String id)
+   public static Path toPPath(String objId)
    {
-      return toPPath(id, DEFAULT_LENGTH);
+      return toPPath(objId, DEFAULT_LENGTH);
    }
 
    /**
-    * Converts an identifier into a relative {@link Path} as described in the Pairtree spec
-    * (i.e. a "pair path").
+    * Converts an object identifier into a ppath represented by a normalized, relative {@link Path}.
+    * <p>
+    * Path segments are as described in the Pairtree spec
+    * with each path segment being the specified length. By convention, the
+    * path segment length is 2, but this may be adjusted as needed by the needs of the
+    * application
     * 
-    * @param id The id to be converted to a pairtree path. Must not be {@code null}.
-    * @param length The length of path segments. Must be greater than 0. By convention, the
-    *      path segment length is 2, but this may be adjusted as needed by the needs of the
-    *      application
-    * @return A relative {@link Path} for the corresponding id.
+    * @param objId The object identifier to be converted to a pairtree path. Must not be {@code null}.
+    * @param length The length of path segments. Must be greater than 0.
+    * @return A relative {@link Path} for the corresponding object identifier
     * @see #toPPath(String)
     */
-   public static Path toPPath(String id, int length)
+   public static Path toPPath(String objId, int length)
    {
-      if (id == null || id.trim().isEmpty())
+      if (objId == null || objId.trim().isEmpty())
          throw new IllegalArgumentException("Supplied id must not be null.");
       if (length <= 0)
          throw new IllegalArgumentException("Supplied path segment length [" + length + "] must be greater than 0.");
 
-      String cleanId = toCleanEncodedId(id);
+      String cleanId = toCleanEncodedId(objId);
 
       // Start at current directory and normalize before returning
       Path p = Paths.get(".");
@@ -112,12 +127,13 @@ public class Pairtree
       int sz = cleanId.length();
       while (start < sz)
       {
-         int end = Math.min(start + length, sz);
-         String part = cleanId.substring(start, end);
+         int endSegment = Math.min(start + length, sz);
+         String part = cleanId.substring(start, endSegment);
          p = p.resolve(part);
-         start = end;
+         start = endSegment;
       }
       
+      // Don't forget to normalize to remove the "."
       p = p.normalize();
 
       return p;
@@ -311,10 +327,6 @@ public class Pairtree
       String result = idBuf.toString().replace('/', '=').replace(':', '+').replace('.', ',');
       return result;
    }
-
-   //private static HashSet<Integer> chars = new HashSet<>(Arrays.asList(0x22, 0x2a, 0x2b, 0x2c, 0x3c, 0x3d, 0x3e, 0x3f, 0x5c, 0x5e, 0x7c));
-   // coerce to a string, then add other (printable) characters as values instead of codes. Retain codes above for code comparison
-   private static String charStr = "" + '"' + '*' + '+' + ',' + '<' + '=' + '>' + '?' + '\\' + '^' + '|';
 
    /**
     * Convert a "cleaned" object identifier into a decoded, "uncleaned" identifier.
