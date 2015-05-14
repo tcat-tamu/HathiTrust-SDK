@@ -85,7 +85,7 @@ public class DefaultExtractedFeaturesProvider implements ExtractedFeaturesProvid
    /**
     * Given the volume-id, type (currently "basic" or "advanced"), and internal root path,
     * provide a {@link Path} to the requested .json.bz2 file if it exists.
-    * 
+    *
     * @param htrcVolumeId
     * @param type
     * @return The requested path, or {@code null} if the file does not exist.
@@ -95,22 +95,23 @@ public class DefaultExtractedFeaturesProvider implements ExtractedFeaturesProvid
    {
       // Volume-id looks like "xxx.123456" and needs to be split into
       // "xxx", "12", "34", "56", "xxx.123456.basic.json.bz2" parts
-      
+
       int sepPos = htrcVolumeId.indexOf('.');
       if (sepPos < 0)
          throw new IllegalArgumentException("Parameter does not 'look like' a volume id ["+htrcVolumeId+"]");
-      
+
       String src = htrcVolumeId.substring(0, sepPos);
       String objId = htrcVolumeId.substring(sepPos+1);
-      
+
       Path ppath = Pairtree.toPPath(objId);
+      objId = Pairtree.toCleanEncodedId(objId);
 
       Path file = root.resolve(type)
                       .resolve(src)
                       .resolve("pairtree_root")
                       .resolve(ppath)
                       .resolve(objId)
-                      .resolve(htrcVolumeId + "." + type + ".json.bz2");
+                      .resolve(src + "." + objId + "." + type + ".json.bz2");
       if (!Files.exists(file))
          return null;
 
