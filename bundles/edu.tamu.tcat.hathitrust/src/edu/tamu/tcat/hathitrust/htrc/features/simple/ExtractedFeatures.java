@@ -66,6 +66,11 @@ public interface ExtractedFeatures extends AutoCloseable
    //int pageCountBasic();
    //int pageCountAdvanced();
    
+   //TODO: can this be assumed to be the same for both basic and advanced?
+   String dateCreated() throws HathiTrustClientException;
+   //String dateCreatedBasic();
+   //String dateCreatedAdvanced();
+   
    /**
     * Get page features for the given page. The page index is an absolute, zero-based index based
     * on the order of the page data in the processed inputs.
@@ -93,11 +98,6 @@ public interface ExtractedFeatures extends AutoCloseable
       int getPageIndex();
       
       String seq() throws HathiTrustClientException;
-      
-      //TODO: can this be assumed to be the same for both basic and advanced?
-      String dateCreated() throws HathiTrustClientException;
-      //String dateCreatedBasic();
-      //String dateCreatedAdvanced();
       
       int tokenCount() throws HathiTrustClientException;
       int lineCount() throws HathiTrustClientException;

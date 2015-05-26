@@ -176,6 +176,19 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
       }
    }
    
+   @Override
+   public String dateCreated() throws HathiTrustClientException
+   {
+      try
+      {
+         return getMetaValue("dateCreated", String.class);
+      }
+      catch (Exception e)
+      {
+         throw new HathiTrustClientException("Failed accessing metadata [metadata.dateCreated] on ["+vid+"]", e);
+      }
+   }
+
    private <T> T getMetaValue(String key, Class<T> type) throws Exception
    {
       Map<String, ?> map = null;
@@ -303,19 +316,6 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
          catch (Exception e)
          {
             throw new HathiTrustClientException("Failed accessing data [seq] on ["+this+"]", e);
-         }
-      }
-
-      @Override
-      public String dateCreated() throws HathiTrustClientException
-      {
-         try
-         {
-            return (String)loadPageBasicData().get("dateCreated");
-         }
-         catch (Exception e)
-         {
-            throw new HathiTrustClientException("Failed accessing data [dateCreated] on ["+this+"]", e);
          }
       }
 

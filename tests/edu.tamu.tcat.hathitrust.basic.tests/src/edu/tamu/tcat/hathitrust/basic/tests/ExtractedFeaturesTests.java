@@ -125,9 +125,10 @@ public class ExtractedFeaturesTests
       {
          String vid = feat.getVolumeId();
          
+         String dc = feat.dateCreated();
+
          debug.info("Processing: " + vid);
-         
-         debug.info("Title: " + feat.getMetadata().title());
+         debug.info("Title: " + feat.getMetadata().title() + " created: " + dc);
          
          if (pageNumber != null)
          {
