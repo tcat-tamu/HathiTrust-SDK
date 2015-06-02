@@ -48,6 +48,7 @@
     
     <module>oss.hathitrust/bundles/edu.tamu.tcat.hathitrust</module>
     <module>oss.hathitrust/bundles/edu.tamu.tcat.hathitrust.basic</module>
+    <module>oss.hathitrust/bundles/edu.tamu.tcat.pairtree</module>
     
     <module>oss.hathitrust/tests/edu.tamu.tcat.hathitrust.basic.tests</module>
   </modules>
@@ -79,6 +80,11 @@
       <id>CITD Releases</id>
       <layout>p2</layout>
       <url>https://download.citd.tamu.edu/sdk</url>
+    </repository>
+    <repository>
+      <id>CITD deps mirror</id>
+      <layout>p2</layout>
+      <url>${repo-base-url}/mirror.dependencies/lastSuccessfulBuild/artifact/targetPlatform/</url>
     </repository>
   </repositories>
 

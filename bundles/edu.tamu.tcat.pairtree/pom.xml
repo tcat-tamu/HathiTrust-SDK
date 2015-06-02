@@ -10,7 +10,7 @@
     <version>1</version>
   </parent>
 
-  <artifactId>edu.tamu.tcat.hathitrust</artifactId>
+  <artifactId>edu.tamu.tcat.pairtree</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
 </project>
