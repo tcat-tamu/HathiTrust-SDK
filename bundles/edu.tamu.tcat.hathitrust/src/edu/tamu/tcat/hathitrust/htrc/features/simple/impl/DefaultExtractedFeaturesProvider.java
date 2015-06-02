@@ -16,6 +16,9 @@ import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeatures;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeaturesProvider;
 import edu.tamu.tcat.pairtree.Pairtree;
 
+/**
+ * @since 1.1
+ */
 public class DefaultExtractedFeaturesProvider implements ExtractedFeaturesProvider, AutoCloseable
 {
    private static final Logger debug = Logger.getLogger(DefaultExtractedFeaturesProvider.class.getName());

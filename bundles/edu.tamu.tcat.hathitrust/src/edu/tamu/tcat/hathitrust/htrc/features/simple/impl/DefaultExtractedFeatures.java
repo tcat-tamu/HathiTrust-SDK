@@ -25,19 +25,20 @@ import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeatures;
 
 /**
  * A default implementation of {@link ExtractedFeatures} which is used with {@link DefaultExtractedFeaturesProvider}.
+ * @since 1.1
  */
 public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFeatures.Metadata
 {
    private static final Logger debug = Logger.getLogger(DefaultExtractedFeatures.class.getName());
-   
+
    private final DefaultExtractedFeaturesProvider parent;
    private final String vid;
    private final Path basic;
    private final Path advanced;
-   
+
    private Future<Map<String, ?>> basicData;
    private Future<Map<String, ?>> advancedData;
-   
+
    public DefaultExtractedFeatures(DefaultExtractedFeaturesProvider parent,
                                    String vid,
                                    Path basic,
@@ -48,16 +49,16 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
       this.basic = basic;
       this.advanced = advanced;
    }
-   
+
    @Override
    public String toString()
    {
       return "ex feat["+vid+" of "+parent+"]";
    }
-   
+
    /**
     * Load the basic and advanced data from disk archive in the given executor.
-    * 
+    *
     * @param exec
     */
    //TODO: this could be done less agressively to not load basic/advanced if not needed
@@ -67,11 +68,11 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
          basicData = exec.submit(() -> doLoad(basic, ExtractedFeatures.schemaVersionBasic));
       if (advanced != null)
          advancedData = exec.submit(() -> doLoad(advanced, ExtractedFeatures.schemaVersionAdvanced));
-      
+
       if (basicData == null && advancedData == null)
          debug.log(Level.WARNING, "No basic or advanced data provided for volume ["+vid+"]");
    }
-   
+
    private Map<String, ?> doLoad(Path p, String ver) throws Exception
    {
       try
@@ -85,18 +86,18 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
             ObjectMapper mapper = new ObjectMapper();
             value = mapper.readValue(bzIn, Map.class);
          }
-         
+
          Map<String, ?> data = (Map)value;
-         
+
          // validate schema
          Map<String, ?> features = (Map)data.get("features");
          if (features == null)
             throw new HathiTrustClientException("Data missing element 'features'");
-            
+
          Object sv = features.get("schemaVersion");
          if (!Objects.equals(sv, ver))
             throw new HathiTrustClientException("Unexpected schema version ["+sv+"] expecting ["+ver+"]");
-         
+
          // Return entire validated data vehicle in raw format
          return data;
       }
@@ -111,7 +112,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
          throw e;
       }
    }
-   
+
    /**
     * Get the "basic" JSON data vehicle. Does not return {@code null}
     */
@@ -119,7 +120,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
    {
       if (basicData == null)
          throw new IllegalStateException("No basic data available");
-      
+
       // Don't allow unbounded 'get'; could be configurable
       Map<String, ?> data = basicData.get(10, TimeUnit.MINUTES);
       return data;
@@ -132,12 +133,12 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
    {
       if (advancedData == null)
          throw new IllegalStateException("No advanced data available");
-      
+
       // Don't allow unbounded 'get'; could be configurable
       Map<String, ?> data = advancedData.get(10, TimeUnit.MINUTES);
       return data;
    }
-   
+
    @Override
    public void close() throws Exception
    {
@@ -156,13 +157,13 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
       //HACK: simpler impl has singleton the same as this instance
       return this;
    }
-   
+
    @Override
    public ExtractedFeatures getVolume()
    {
       return this;
    }
-   
+
    @Override
    public String title() throws HathiTrustClientException
    {
@@ -175,7 +176,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
          throw new HathiTrustClientException("Failed accessing metadata [metadata.title] on ["+vid+"]", e);
       }
    }
-   
+
    @Override
    public String dateCreated() throws HathiTrustClientException
    {
@@ -196,7 +197,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
          map = getBasic();
       else
          map = getAdvanced();
-      
+
       Map<String, ?> meta = (Map)map.get("metadata");
       Object v = meta.get(key);
       return (T)v;
@@ -209,12 +210,12 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
          map = getBasic();
       else
          map = getAdvanced();
-      
+
       Map<String, ?> meta = (Map)map.get("features");
       Object v = meta.get(key);
       return (T)v;
    }
-   
+
    @Override
    public int pageCount() throws HathiTrustClientException
    {
@@ -223,7 +224,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
          Number v = getFeaturesValue("pageCount", Number.class);
          if (v == null)
             throw new IllegalStateException("Missing value 'features.pageCount'");
-         
+
          return v.intValue();
       }
       catch (Exception e)
@@ -237,24 +238,24 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
    {
       return new DefaultPage(this, page);
    }
-   
+
    public static class DefaultPage implements ExtractedFeatures.ExtractedPageFeatures
    {
       private final DefaultExtractedFeatures parent;
       private final int index;
-      
+
       // cache basic/advanced data to improve performance of repeated access, such as for token POS counts
       //@GuardedBy("this")
       private Map<String, ?> pageDataBasic;
       //@GuardedBy("this")
       private Map<String, ?> pageDataAdvanced;
-      
+
       public DefaultPage(DefaultExtractedFeatures parent, int index)
       {
          this.index = index;
          this.parent = Objects.requireNonNull(parent);
       }
-      
+
       @Override
       public String toString()
       {
@@ -266,13 +267,13 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
       {
          return parent;
       }
-      
+
       @Override
       public int getPageIndex()
       {
          return index;
       }
-      
+
       private synchronized Map<String, ?> loadPageBasicData() throws Exception
       {
          if (pageDataBasic == null)
@@ -286,7 +287,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
                throw new IllegalStateException("Basic data missing 'features.pages' element");
             pageDataBasic = (Map)pages.get(index);
          }
-         
+
          return pageDataBasic;
       }
 
@@ -305,7 +306,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
          }
          return pageDataAdvanced;
       }
-      
+
       @Override
       public String seq() throws HathiTrustClientException
       {
@@ -353,7 +354,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
          return new DefaultPOS(this, "body");
       }
    }
-   
+
    public static class DefaultPOS implements ExtractedFeatures.ExtractedPagePartOfSpeechData
    {
       private final DefaultPage parent;
@@ -364,7 +365,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
          this.parent = Objects.requireNonNull(parent);
          this.section = Objects.requireNonNull(section);
       }
-      
+
       @Override
       public String toString()
       {
@@ -403,11 +404,11 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
             Map<String, ?> secData = (Map)parent.loadPageBasicData().get(section);
             if (secData == null)
                throw new IllegalStateException("Section ["+section+"] has no basic data");
-            
+
             Map<String, ?> tokensData = (Map)secData.get("tokenPosCount");
             if (tokensData == null)
                throw new IllegalStateException("Section ["+section+"] has no basic 'tokenPosCount' data");
-               
+
             return Collections.unmodifiableSet(tokensData.keySet());
          }
          catch (Exception e)
@@ -424,20 +425,20 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
             Map<String, ?> secData = (Map)parent.loadPageBasicData().get(section);
             if (secData == null)
                throw new IllegalStateException("Section ["+section+"] has no basic data");
-            
+
             Map<String, ?> tokensData = (Map)secData.get("tokenPosCount");
             if (tokensData == null)
                throw new IllegalStateException("Section ["+section+"] has no basic 'tokenPosCount' data");
-               
+
             // This map is typically of size=1
             Map<String, ?> tokData = (Map)tokensData.get(token);
-            
+
             // Asked for invalid token
             if (tokData == null)
                return Collections.emptyMap();
-            
+
             Map<String, Integer> rv = new HashMap<>();
-            
+
             for (Map.Entry<String, ?> entry : tokData.entrySet())
             {
                Number n = (Number)entry.getValue();
@@ -448,7 +449,7 @@ public class DefaultExtractedFeatures implements ExtractedFeatures, ExtractedFea
                   v = Integer.valueOf(n.intValue());
                rv.put(entry.getKey(), v);
             }
-            
+
             return rv;
          }
          catch (Exception e)

@@ -17,6 +17,7 @@ import edu.tamu.tcat.hathitrust.HathiTrustClientException;
  * <p>
  * This API applies to: Metadata schema version 1.2; Basic Features schema version 2.0; Advanced
  * Features schema version 2.0.
+ * @since 1.1
  */
 public interface ExtractedFeatures extends AutoCloseable
 {

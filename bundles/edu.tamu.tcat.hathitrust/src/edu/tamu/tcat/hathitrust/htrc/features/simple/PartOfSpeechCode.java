@@ -2,8 +2,9 @@ package edu.tamu.tcat.hathitrust.htrc.features.simple;
 
 /**
  * Codes for parts of speech as used by the Penn Treebank Project.
- * 
+ *
  * @see https://www.cis.upenn.edu/~treebank/
+ * @since 1.1
  */
 public enum PartOfSpeechCode
 {
@@ -43,24 +44,24 @@ public enum PartOfSpeechCode
    WP("Wh-pronoun"),
    WP$("Possessive wh-pronoun"),
    WRB("Wh-adverb");
-   
+
    private final String title;
-   
+
    private PartOfSpeechCode(String title)
    {
       this.title = title;
    }
-   
+
    public String getTitle()
    {
       return title;
    }
-   
+
    /**
     * Unchecked form of {@link #valueOf(String)} which will return {@code null} if the provided
     * key is not a valid {@link PartOfSpeechCode}. This is useful because some codes used in
     * the HTRC Extracted Features do not match to codes.
-    * 
+    *
     * @param code
     * @return The matching instance to the provided code, or {@code null} if no match is found.
     */

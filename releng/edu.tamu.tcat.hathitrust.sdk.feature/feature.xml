@@ -2,7 +2,7 @@
 <feature
       id="edu.tamu.tcat.hathitrust.sdk.feature"
       label="TCAT HathiTrust Client and Utilities SDK Feature"
-      version="1.0.0.qualifier"
+      version="1.1.0.qualifier"
       provider-name="Texas A&amp;M Engineering Experiment Station">
 
    <description>
@@ -37,14 +37,14 @@ limitations under the License.
          id="edu.tamu.tcat.hathitrust"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.hathitrust.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
