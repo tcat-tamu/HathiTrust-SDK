@@ -2,17 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HathiTrust REST API SDK
 Bundle-SymbolicName: edu.tamu.tcat.hathitrust;singleton:=true
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: edu.tamu.tcat.hathitrust;version="1.1.0",
- edu.tamu.tcat.hathitrust.bibliography;version="1.1.0",
- edu.tamu.tcat.hathitrust.data;version="1.1.0",
- edu.tamu.tcat.hathitrust.htrc.features.simple;version="1.1.0",
- edu.tamu.tcat.hathitrust.htrc.features.simple.impl;version="1.1.0",
- edu.tamu.tcat.hathitrust.rights;version="1.1.0"
-Import-Package: com.fasterxml.jackson.core;version="2.3.1",
- com.fasterxml.jackson.databind;version="2.3.1",
- com.google.common.util.concurrent,
+Export-Package: edu.tamu.tcat.hathitrust;version="1.2.0",
+ edu.tamu.tcat.hathitrust.bibliography;version="1.2.0",
+ edu.tamu.tcat.hathitrust.data;version="1.2.0",
+ edu.tamu.tcat.hathitrust.htrc.features.simple;version="1.2.0",
+ edu.tamu.tcat.hathitrust.htrc.features.simple.impl;version="1.2.0",
+ edu.tamu.tcat.hathitrust.rights;version="1.2.0"
+Import-Package: com.fasterxml.jackson.core;version="[2.3.0,3.0.0)",
+ com.fasterxml.jackson.databind;version="[2.3.0,3.0.0)",
+ com.google.common.util.concurrent;version="10.0.0",
  edu.tamu.tcat.pairtree;version="[1.0.0,2.0.0)",
- org.apache.commons.compress.compressors.bzip2;version="1.9.0"
+ org.apache.commons.compress.compressors.bzip2;version="[1.9.0,2.0.0)"

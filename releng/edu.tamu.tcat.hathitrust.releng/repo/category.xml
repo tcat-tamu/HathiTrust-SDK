@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature id="edu.tamu.tcat.hathitrust.sdk.feature" version="1.1.0.qualifier">
-      <category name="edu.tamu.tcat.hathitrust"/>
+   <feature id="edu.tamu.tcat.hathitrust.sdk.feature" version="1.1.1.qualifier">
+      <category name="edu.tamu.tcat.oss"/>
    </feature>
-   <category-def name="edu.tamu.tcat.hathitrust" label="TCAT HathiTrust Client and Utilities">
+   <category-def name="edu.tamu.tcat.oss" label="TCAT OSS">
       <description>
-         A library for communicating with HathiTrust web services and data files.
+         TCAT OSS Libraries
       </description>
    </category-def>
 </site>
