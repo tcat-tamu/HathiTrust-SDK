@@ -2,21 +2,21 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HathiTrust API Basic Implementation
 Bundle-SymbolicName: edu.tamu.tcat.hathitrust.basic;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.1.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.fasterxml.jackson.annotation;version="2.3.0",
- com.fasterxml.jackson.core;version="2.3.0",
- com.fasterxml.jackson.databind;version="2.3.0",
+Import-Package: com.fasterxml.jackson.annotation;version="[2.3.0,3.0.0)",
+ com.fasterxml.jackson.core;version="[2.3.0,3.0.0)",
+ com.fasterxml.jackson.databind;version="[2.3.0,3.0.0)",
  com.google.common.base;version="15.0.0",
  com.google.common.collect;version="15.0.0",
  com.google.common.escape;version="15.0.0",
  com.google.common.net;version="15.0.0",
- edu.tamu.tcat.hathitrust,
- edu.tamu.tcat.hathitrust.bibliography,
- edu.tamu.tcat.hathitrust.data,
- edu.tamu.tcat.hathitrust.rights,
- edu.tamu.tcat.osgi.config;version="1.0.3",
+ edu.tamu.tcat.hathitrust;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.hathitrust.bibliography;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.hathitrust.data;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.hathitrust.rights;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.osgi.config;version="[1.0.0,2.0.0)",
  org.apache.commons.codec.binary;version="1.6.0",
  org.apache.http;version="4.2.0",
  org.apache.http.auth;version="4.2.0",
@@ -27,6 +27,8 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.3.0",
  org.apache.http.impl.client;version="4.2.0",
  org.apache.http.message;version="4.2.0",
  org.apache.http.params;version="4.2.0"
-Export-Package: edu.tamu.tcat.hathitrust.basic.oauth,
- edu.tamu.tcat.hathitrust.client.v1.basic
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10.0"
+Export-Package: edu.tamu.tcat.hathitrust.basic.oauth;version="1.0.1",
+ edu.tamu.tcat.hathitrust.client.v1.basic;version="1.0.1",
+ edu.tamu.tcat.hathitrust.model.rights.ext;version="1.0.1",
+ edu.tamu.tcat.hathitrust.plugin;version="1.0.1"
+Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.10.0,4.0.0)"
