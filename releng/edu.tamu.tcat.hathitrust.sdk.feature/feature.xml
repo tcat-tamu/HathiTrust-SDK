@@ -51,14 +51,14 @@ limitations under the License.
          id="edu.tamu.tcat.hathitrust.basic"
          download-size="0"
          install-size="0"
-         version="1.0.1.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.hathitrust.basic.source"
          download-size="0"
          install-size="0"
-         version="1.0.1.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
