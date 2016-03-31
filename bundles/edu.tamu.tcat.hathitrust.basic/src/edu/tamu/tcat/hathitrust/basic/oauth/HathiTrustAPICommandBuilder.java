@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.util.Arrays;
@@ -41,8 +42,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
-import com.google.common.escape.Escaper;
-import com.google.common.net.UrlEscapers;
 
 /**
  * Implements the tasks associated with building and signing requests to the HathiTrust
@@ -79,7 +78,6 @@ public class HathiTrustAPICommandBuilder
    ));
 
    Joiner queryParamJoiner = Joiner.on("&").skipNulls();
-   Escaper queryParamEscaper = UrlEscapers.urlFormParameterEscaper();
 
    // TODO find a better way to obtain one of these
    static SecureRandom prng = new SecureRandom();
@@ -95,14 +93,22 @@ public class HathiTrustAPICommandBuilder
 
    public HathiTrustAPICommandBuilder setCredentials(String accessKey, String sharedSecret)
    {
-      String secret = queryParamEscaper.escape(sharedSecret);
-      String token = queryParamEscaper.escape("");
+      try
+      {
+      String secret = URLEncoder.encode(sharedSecret, "UTF-8");
+      String token = URLEncoder.encode("", "UTF-8");
       String key = queryParamJoiner.join(secret, token);
 
       this.accessKey = accessKey;
       this.signatureKey = key.getBytes();
 
       return this;
+      }
+      catch (UnsupportedEncodingException ex)
+      {
+         // if this happens, UTF-8 is not available
+         throw new IllegalStateException(ex);
+      }
    }
 
    public HathiTrustAPICommandBuilder setUri(URI uri)
@@ -215,10 +221,18 @@ public class HathiTrustAPICommandBuilder
          }
       });
 
-      String url = queryParamEscaper.escape(normalizeUrl());
-      String normParams = queryParamEscaper.escape(normalizeParams(filteredOAuthParams));
+      try
+      {
+         String url = URLEncoder.encode(normalizeUrl(), "UTF-8");
+         String normParams =  URLEncoder.encode(normalizeParams(filteredOAuthParams), "UTF-8");
 
-      return queryParamJoiner.join(method, url, normParams);
+         return queryParamJoiner.join(method, url, normParams);
+      }
+      catch (UnsupportedEncodingException ex)
+      {
+         // failed to find UTF-8 encoding
+         throw new IllegalStateException(ex);
+      }
    }
 
 
